@@ -1,0 +1,14 @@
+{
+  "packages": [
+    "path:./flakes/android-sdk#android-sdk", // manage sdk versions in flakes/android-sdk/flake.nix
+    "path:./flakes/android-sdk#gradle", // Use Gradle wrapper with aapt2 workaround
+    "earthly@latest",
+    "git@latest",
+    "jdk@11", // Android gradle needs jdk11
+    "just@latest"
+  ],
+}
+
+// this file supports comments
+// https://github.com/jetify-com/devbox/issues/1916
+// vim: set ft=jsonc:
