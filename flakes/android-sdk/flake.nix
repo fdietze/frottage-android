@@ -36,15 +36,15 @@
             with sdkPkgs;
             [
               # Useful packages for building and testing.
-              build-tools-30-0-3
+              build-tools-33-0-1
               cmdline-tools-latest
               emulator
               platform-tools
               # gradle attempted to install all those platform sdks...
-              platforms-android-28
-              platforms-android-29
-              platforms-android-31
-              platforms-android-33
+              # platforms-android-28
+              # platforms-android-29
+              # platforms-android-31
+              # platforms-android-33
               platforms-android-34
 
               # Other useful packages for a development environment.

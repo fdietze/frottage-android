@@ -121,31 +121,39 @@
         }
       }
     },
-    "jdk@11": {
+    "jdk@17": {
       "last_modified": "2024-09-10T15:01:03Z",
-      "resolved": "github:NixOS/nixpkgs/5ed627539ac84809c78b2dd6d26a5cebeb5ae269#jdk11",
+      "resolved": "github:NixOS/nixpkgs/5ed627539ac84809c78b2dd6d26a5cebeb5ae269#jdk17",
       "source": "devbox-search",
-      "version": "11.0.22",
+      "version": "17.0.11+9",
       "systems": {
-        "aarch64-darwin": {
+        "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/8hmdv27fa4jf0437fmqsjim76n0lj747-zulu-ca-jdk-11.0.22",
+              "path": "/nix/store/2mh5nfk7xmy4chf4axcsn8ynchphbwh9-openjdk-17.0.11+9",
               "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/5iw5wsgbgf3gj1sjlz9r2lspbffnff4h-openjdk-17.0.11+9-debug"
             }
           ],
-          "store_path": "/nix/store/8hmdv27fa4jf0437fmqsjim76n0lj747-zulu-ca-jdk-11.0.22"
+          "store_path": "/nix/store/2mh5nfk7xmy4chf4axcsn8ynchphbwh9-openjdk-17.0.11+9"
         },
-        "x86_64-darwin": {
+        "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/kiq5xyv03c0y77fgyn8zmzmxxak4yl9z-zulu-ca-jdk-11.0.22",
+              "path": "/nix/store/xy53lk4001h814d7dwh8f52wcqxrn7rp-openjdk-17.0.11+9",
               "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/5kfz4fxnzq57diwa72fxs90fs9gc7n2f-openjdk-17.0.11+9-debug"
             }
           ],
-          "store_path": "/nix/store/kiq5xyv03c0y77fgyn8zmzmxxak4yl9z-zulu-ca-jdk-11.0.22"
+          "store_path": "/nix/store/xy53lk4001h814d7dwh8f52wcqxrn7rp-openjdk-17.0.11+9"
         }
       }
     },
