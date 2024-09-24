@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         MainScope().launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val url = URL("https://source.unsplash.com/random/1080x1920")
+                    val url = URL("https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg")
                     val bitmap = android.graphics.BitmapFactory.decodeStream(url.openConnection().getInputStream())
                     val wallpaperManager = WallpaperManager.getInstance(applicationContext)
                     wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
