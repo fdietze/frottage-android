@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wallpaperapp"
+    namespace = "com.frottage"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.wallpaperapp"
+        applicationId = "com.frottage"
         minSdk = 21
         targetSdk = 34
         versionCode = 1

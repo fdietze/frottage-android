@@ -1,4 +1,4 @@
-package com.example.wallpaperapp
+package com.frottage
 
 import android.app.WallpaperManager
 import android.os.Bundle

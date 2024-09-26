@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "WallpaperApp"
+rootProject.name = "Frottage"
 include(":app")
