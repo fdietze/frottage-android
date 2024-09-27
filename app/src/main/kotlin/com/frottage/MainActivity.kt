@@ -2,39 +2,61 @@ package com.frottage
 
 import android.app.WallpaperManager
 import android.os.Bundle
-import android.widget.Button
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.net.URL
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        findViewById<Button>(R.id.setWallpaperButton).setOnClickListener {
-            setWallpaper()
+        setContent {
+            MaterialTheme {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    WallpaperScreen()
+                }
+            }
         }
     }
+}
 
-    private fun setWallpaper() {
-        MainScope().launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    val url = URL("https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg")
-                    val bitmap = android.graphics.BitmapFactory.decodeStream(url.openConnection().getInputStream())
-                    val wallpaperManager = WallpaperManager.getInstance(applicationContext)
-                    wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
+@Composable
+fun WallpaperScreen() {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Button(onClick = {
+            coroutineScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        val url = URL("https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg")
+                        val bitmap = android.graphics.BitmapFactory.decodeStream(url.openConnection().getInputStream())
+                        val wallpaperManager = WallpaperManager.getInstance(context)
+                        wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_LOCK)
+                    }
+                    Toast.makeText(context, "Wallpaper set successfully", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error setting wallpaper: ${e.message}", Toast.LENGTH_SHORT).show()
+                    e.printStackTrace()
                 }
-                Toast.makeText(this@MainActivity, "Wallpaper set successfully", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(this@MainActivity, "Error setting wallpaper: ${e.message}", Toast.LENGTH_SHORT).show()
-                e.printStackTrace()
             }
+        }) {
+            Text("Set Wallpaper")
         }
     }
 }

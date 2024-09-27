@@ -36,7 +36,7 @@
             with sdkPkgs;
             [
               # Useful packages for building and testing.
-              build-tools-33-0-1
+              build-tools-34-0-0
               cmdline-tools-latest
               emulator
               platform-tools
