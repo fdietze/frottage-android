@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 
 @Composable
-fun WallpaperScreen() {
+fun WallpaperScreen(triggerUpdate: Int) {
     var isFullScreen by remember { mutableStateOf(false) }
 
     if (isFullScreen) {
@@ -33,7 +33,8 @@ fun WallpaperScreen() {
                 CurrentWallpaper(
                     modifier = Modifier.fillMaxSize(),
                     onClick = { isFullScreen = true },
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Fit,
+                    key = triggerUpdate
                 )
             }
 
@@ -44,7 +45,7 @@ fun WallpaperScreen() {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 WallpaperScheduleSwitch()
-                NextUpdateTime()
+                NextUpdateTime(key = triggerUpdate)
             }
         }
     }

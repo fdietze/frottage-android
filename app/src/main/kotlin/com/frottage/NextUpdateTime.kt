@@ -8,8 +8,8 @@ import java.util.*
 import com.frottage.TimeUtils
 
 @Composable
-fun NextUpdateTime() {
-    val currentTime = remember { Calendar.getInstance(TimeZone.getTimeZone("UTC")) }
+fun NextUpdateTime(key: Any? = null) {
+    val currentTime = remember(key) { Calendar.getInstance(TimeZone.getTimeZone("UTC")) }
     val isUpdateScheduled = remember(currentTime) { TimeUtils.isUpdateScheduled(currentTime) }
 
     if (isUpdateScheduled) {
