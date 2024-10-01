@@ -10,17 +10,12 @@ apk:
 devices:
   adb devices
 
-install:
-  gradle assembleDebug
+install: apk
   adb devices
   adb install app/build/outputs/apk/debug/frottage-debug.apk
   adb shell monkey -p com.frottage -c android.intent.category.LAUNCHER 1
 
-run:
-  gradle assembleDebug
-  adb devices
-  adb install app/build/outputs/apk/debug/frottage-debug.apk
-  adb shell monkey -p com.frottage -c android.intent.category.LAUNCHER 1
+run: install
   scripts/logcat com.frottage
 
 
