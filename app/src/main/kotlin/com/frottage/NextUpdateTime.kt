@@ -15,8 +15,9 @@ fun NextUpdateTime(key: Any? = null) {
     if (isUpdateScheduled) {
         val nextUpdateTime = remember(currentTime) { TimeUtils.getNextUpdateTime(currentTime) }
         
-        val localNextUpdateTime = nextUpdateTime.clone() as Calendar
-        localNextUpdateTime.timeZone = TimeZone.getDefault()
+        val localNextUpdateTime = Calendar.getInstance(TimeZone.getDefault()).apply {
+            timeInMillis = nextUpdateTime.timeInMillis
+        }
 
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val formattedNextUpdateTime = timeFormat.format(localNextUpdateTime.time)
