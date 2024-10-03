@@ -44,8 +44,10 @@ fun WallpaperScreen(triggerUpdate: Int) {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                WallpaperScheduleSwitch()
-                NextUpdateTime(key = triggerUpdate)
+                val isScheduleEnabled = WallpaperScheduleSwitch()
+                if (isScheduleEnabled) {
+                    NextUpdateTime(key = triggerUpdate)
+                }
             }
         }
     }

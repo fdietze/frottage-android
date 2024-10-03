@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 
 @Composable
-fun WallpaperScheduleSwitch() {
+fun WallpaperScheduleSwitch(): Boolean {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val currentTime = remember { Calendar.getInstance(TimeZone.getTimeZone("UTC")) }
@@ -38,4 +38,5 @@ fun WallpaperScheduleSwitch() {
             }
         )
     }
+    return isScheduleEnabled
 }
