@@ -9,10 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.Dp
 
 @Composable
-fun WallpaperScreen(triggerUpdate: Int) {
+fun WallpaperScreen(triggerUpdate: Int, prompt: String?) {
     var isFullScreen by remember { mutableStateOf(false) }
 
     if (isFullScreen) {
@@ -40,6 +39,15 @@ fun WallpaperScreen(triggerUpdate: Int) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            prompt?.let {
+                Text(
+                    text = "Prompt: $it",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -52,4 +60,3 @@ fun WallpaperScreen(triggerUpdate: Int) {
         }
     }
 }
-

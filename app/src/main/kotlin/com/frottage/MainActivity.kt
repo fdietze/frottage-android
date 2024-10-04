@@ -8,8 +8,9 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -20,9 +21,12 @@ import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
 
 class MainActivity : ComponentActivity(), Configuration.Provider {
     private val updateTrigger = MutableStateFlow(0)
+    private val _promptFlow = MutableStateFlow<String?>(null)
+    val promptFlow: StateFlow<String?> = _promptFlow
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,12 +34,15 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
         requestBatteryOptimizationExemption()
         observeWallpaperUpdates()
 
+        fetchPrompt()
+
         setContent {
             val triggerUpdate by updateTrigger.collectAsState()
+            val prompt by promptFlow.collectAsState()
 
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    WallpaperScreen(triggerUpdate)
+                    WallpaperScreen(triggerUpdate = triggerUpdate, prompt = prompt)
                 }
             }
         }
@@ -78,6 +85,17 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = Companion.workManagerConfiguration
+
+    private fun fetchPrompt() {
+        lifecycleScope.launch {
+            try {
+                val prompt = PromptFetcher.fetchPrompt()
+                _promptFlow.value = prompt
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
 
     companion object {
         val workManagerConfiguration: Configuration
