@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://github.com/fdietze/frottage-android/blob/main/assets/icon.png" width="400px" alt="Frottage icon"/>
-</p>
+<p align="center"><img align="center" width="280" src="./assets/icon.svg"/></p>
 
 
 # Frottage Android App
