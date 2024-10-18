@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="https://github.com/fdietze/frottage-android/blob/main/assets/icon.png" width="400px" alt="Frottage icon"/>
+</p>
+
+
 # Frottage Android App
 
 Fresh AI wallpapers every day.
