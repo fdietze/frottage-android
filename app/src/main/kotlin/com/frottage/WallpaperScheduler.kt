@@ -1,9 +1,7 @@
 package com.frottage
 
 import android.content.Context
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -26,6 +24,11 @@ object WallpaperScheduler {
             
             val wallpaperWorkRequest = OneTimeWorkRequestBuilder<WallpaperWorker>()
                 .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(
+                    BackoffPolicy.EXPONENTIAL,
+                    WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS
+                )
                 .addTag("wallpaper_update")
                 .build()
 
