@@ -12,8 +12,8 @@ import kotlinx.coroutines.withContext
 
 object WallpaperSetter {
     private const val TAG = "WallpaperSetter"
-    private const val LOCK_SCREEN_WALLPAPER_URL = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg"
-    private const val HOME_SCREEN_WALLPAPER_URL = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-homescreen-latest.jpg"
+    const val DEFAULT_LOCK_SCREEN_WALLPAPER_URL = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg"
+    const val DEFAULT_HOME_SCREEN_WALLPAPER_URL = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-homescreen-latest.jpg"
 
     suspend fun setWallpaper(context: Context) {
         try {
@@ -22,11 +22,14 @@ object WallpaperSetter {
                 val loader = ImageLoader(context)
                 val wallpaperManager = WallpaperManager.getInstance(context)
 
+                val lockScreenUrl = SettingsManager.getLockScreenUrl(context) ?: DEFAULT_LOCK_SCREEN_WALLPAPER_URL
+                val homeScreenUrl = SettingsManager.getHomeScreenUrl(context) ?: DEFAULT_HOME_SCREEN_WALLPAPER_URL
+
                 // Set lock screen wallpaper
-                setWallpaperForScreen(context, loader, wallpaperManager, LOCK_SCREEN_WALLPAPER_URL, WallpaperManager.FLAG_LOCK)
+                setWallpaperForScreen(context, loader, wallpaperManager, lockScreenUrl, WallpaperManager.FLAG_LOCK)
 
                 // Set home screen wallpaper
-                setWallpaperForScreen(context, loader, wallpaperManager, HOME_SCREEN_WALLPAPER_URL, WallpaperManager.FLAG_SYSTEM)
+                setWallpaperForScreen(context, loader, wallpaperManager, homeScreenUrl, WallpaperManager.FLAG_SYSTEM)
             }
             Log.i(TAG, "Wallpapers set successfully")
             Toast.makeText(context, "Wallpapers set successfully", Toast.LENGTH_SHORT).show()

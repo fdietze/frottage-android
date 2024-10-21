@@ -8,12 +8,15 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.work.Configuration
 import androidx.work.WorkInfo
@@ -40,9 +43,36 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
             val triggerUpdate by updateTrigger.collectAsState()
             val prompt by promptFlow.collectAsState()
 
+            var showSettings by remember { mutableStateOf(false) }
+
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    WallpaperScreen(triggerUpdate = triggerUpdate, prompt = prompt)
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if (showSettings) {
+                            SettingsScreen(
+                                onSettingsSaved = {
+                                    showSettings = false
+                                }
+                            )
+                            BackHandler {
+                                showSettings = false
+                            }
+                        } else {
+                            WallpaperScreen(triggerUpdate = triggerUpdate, prompt = prompt)
+                            
+                            FloatingActionButton(
+                                onClick = { showSettings = true },
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(16.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Settings"
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
