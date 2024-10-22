@@ -4,7 +4,18 @@
 _default:
   @just --list --unsorted
 
-apk:
+test:
+  gradle test
+
+fix:
+  ktlint --format
+
+lint:
+  ktlint
+
+ci: test lint
+
+apk: test
   gradle assembleDebug
 
 devices:

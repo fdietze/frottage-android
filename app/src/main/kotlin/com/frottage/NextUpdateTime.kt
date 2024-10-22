@@ -3,24 +3,24 @@ package com.frottage
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import java.text.SimpleDateFormat
-import java.util.*
-import com.frottage.TimeUtils
+import androidx.compose.ui.platform.LocalContext
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun NextUpdateTime(key: Any? = null) {
-    val currentTime = remember(key) { Calendar.getInstance(TimeZone.getTimeZone("UTC")) }
-    val isUpdateScheduled = remember(currentTime) { TimeUtils.isUpdateScheduled(currentTime) }
+    val context = LocalContext.current
+    val currentTime = remember(key) { ZonedDateTime.now(ZoneId.of("UTC")) }
+    val isUpdateScheduled = remember(currentTime) { SettingsManager.getScheduleIsEnabled(context) }
 
     if (isUpdateScheduled) {
-        val nextUpdateTime = remember(currentTime) { TimeUtils.getNextUpdateTime(currentTime) }
-        
-        val localNextUpdateTime = Calendar.getInstance(TimeZone.getDefault()).apply {
-            timeInMillis = nextUpdateTime.timeInMillis
-        }
+        val nextUpdateTime = remember(currentTime) { getNextUpdateTime(currentTime) }
 
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val formattedNextUpdateTime = timeFormat.format(localNextUpdateTime.time)
+        val localNextUpdateTime = nextUpdateTime.withZoneSameInstant(ZoneId.systemDefault())
+        val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
+        val formattedNextUpdateTime = localNextUpdateTime.format(timeFormat)
 
         Text("Next update at: $formattedNextUpdateTime")
     }

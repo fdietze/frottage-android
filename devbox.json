@@ -6,6 +6,7 @@
     "git@latest",
     "jdk@17", // Android gradle needs jdk11
     "just@latest",
+    "ktlint@latest",
   ],
 }
 

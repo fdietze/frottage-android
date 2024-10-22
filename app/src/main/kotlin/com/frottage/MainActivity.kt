@@ -7,11 +7,11 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.activity.compose.BackHandler
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,11 +22,13 @@ import androidx.work.Configuration
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.StateFlow
 
-class MainActivity : ComponentActivity(), Configuration.Provider {
+class MainActivity :
+    ComponentActivity(),
+    Configuration.Provider {
     private val updateTrigger = MutableStateFlow(0)
     private val _promptFlow = MutableStateFlow<String?>(null)
     val promptFlow: StateFlow<String?> = _promptFlow
@@ -37,7 +39,7 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
         requestBatteryOptimizationExemption()
         observeWallpaperUpdates()
 
-        fetchPrompt()
+        fetchAndSetPrompt()
 
         setContent {
             val triggerUpdate by updateTrigger.collectAsState()
@@ -52,23 +54,24 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
                             SettingsScreen(
                                 onSettingsSaved = {
                                     showSettings = false
-                                }
+                                },
                             )
                             BackHandler {
                                 showSettings = false
                             }
                         } else {
-                            WallpaperScreen(triggerUpdate = triggerUpdate, prompt = prompt)
-                            
+                            WallpaperScreen(prompt = prompt, key = triggerUpdate)
+
                             FloatingActionButton(
                                 onClick = { showSettings = true },
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(16.dp)
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(16.dp),
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Settings,
-                                    contentDescription = "Settings"
+                                    contentDescription = "Settings",
                                 )
                             }
                         }
@@ -82,10 +85,11 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val powerManager = getSystemService(POWER_SERVICE) as PowerManager
             if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
-                val intent = Intent().apply {
-                    action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                    data = Uri.parse("package:$packageName")
-                }
+                val intent =
+                    Intent().apply {
+                        action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                        data = Uri.parse("package:$packageName")
+                    }
                 startActivity(intent)
             }
         }
@@ -93,7 +97,8 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
 
     private fun observeWallpaperUpdates() {
         lifecycleScope.launch {
-            WorkManager.getInstance(applicationContext)
+            WorkManager
+                .getInstance(applicationContext)
                 .getWorkInfosByTagFlow("wallpaper_update")
                 .collect { workInfoList ->
                     workInfoList.forEach { workInfo ->
@@ -105,21 +110,13 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
         }
     }
 
-    fun scheduleWallpaperUpdate() {
-        WallpaperScheduler.scheduleUpdates(applicationContext)
-    }
-
-    fun cancelWallpaperUpdates() {
-        WallpaperScheduler.cancelUpdates(applicationContext)
-    }
-
     override val workManagerConfiguration: Configuration
         get() = Companion.workManagerConfiguration
 
-    private fun fetchPrompt() {
+    private fun fetchAndSetPrompt() {
         lifecycleScope.launch {
             try {
-                val prompt = PromptFetcher.fetchPrompt()
+                val prompt = fetchPrompt()
                 _promptFlow.value = prompt
             } catch (e: Exception) {
                 // Handle error
@@ -129,8 +126,10 @@ class MainActivity : ComponentActivity(), Configuration.Provider {
 
     companion object {
         val workManagerConfiguration: Configuration
-            get() = Configuration.Builder()
-                .setMinimumLoggingLevel(android.util.Log.INFO)
-                .build()
+            get() =
+                Configuration
+                    .Builder()
+                    .setMinimumLoggingLevel(android.util.Log.INFO)
+                    .build()
     }
 }

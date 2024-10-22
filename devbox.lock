@@ -240,6 +240,54 @@
           "store_path": "/nix/store/1bkp6pcvnhmn3xp3jz2f6zhdjzjhksz6-just-1.35.0"
         }
       }
+    },
+    "ktlint@latest": {
+      "last_modified": "2024-10-13T23:44:06Z",
+      "resolved": "github:NixOS/nixpkgs/d4f247e89f6e10120f911e2e2d2254a050d0f732#ktlint",
+      "source": "devbox-search",
+      "version": "1.3.1",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/7jcardhjf447w05jck91ixr5cb6d98jc-ktlint-1.3.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/7jcardhjf447w05jck91ixr5cb6d98jc-ktlint-1.3.1"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/0l06ppl299l6cd5sa2z3pdkmbcmj1h0a-ktlint-1.3.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/0l06ppl299l6cd5sa2z3pdkmbcmj1h0a-ktlint-1.3.1"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/f1072728bhsc7nq54zw4dj9cj1i89nhn-ktlint-1.3.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/f1072728bhsc7nq54zw4dj9cj1i89nhn-ktlint-1.3.1"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/0xkjbp5x0994vc3x13ddmgqb25cw7crh-ktlint-1.3.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/0xkjbp5x0994vc3x13ddmgqb25cw7crh-ktlint-1.3.1"
+        }
+      }
     }
   }
 }

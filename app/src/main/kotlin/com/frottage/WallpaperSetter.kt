@@ -12,8 +12,6 @@ import kotlinx.coroutines.withContext
 
 object WallpaperSetter {
     private const val TAG = "WallpaperSetter"
-    const val DEFAULT_LOCK_SCREEN_WALLPAPER_URL = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg"
-    const val DEFAULT_HOME_SCREEN_WALLPAPER_URL = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-homescreen-latest.jpg"
 
     suspend fun setWallpaper(context: Context) {
         try {
@@ -22,8 +20,8 @@ object WallpaperSetter {
                 val loader = ImageLoader(context)
                 val wallpaperManager = WallpaperManager.getInstance(context)
 
-                val lockScreenUrl = SettingsManager.getLockScreenUrl(context) ?: DEFAULT_LOCK_SCREEN_WALLPAPER_URL
-                val homeScreenUrl = SettingsManager.getHomeScreenUrl(context) ?: DEFAULT_HOME_SCREEN_WALLPAPER_URL
+                val lockScreenUrl = SettingsManager.getLockScreenUrl(context)
+                val homeScreenUrl = SettingsManager.getHomeScreenUrl(context)
 
                 // Set lock screen wallpaper
                 setWallpaperForScreen(context, loader, wallpaperManager, lockScreenUrl, WallpaperManager.FLAG_LOCK)
@@ -44,15 +42,18 @@ object WallpaperSetter {
         loader: ImageLoader,
         wallpaperManager: WallpaperManager,
         url: String,
-        flag: Int
+        flag: Int,
     ) {
-        val request = ImageRequest.Builder(context)
-            .data(url)
-            .allowHardware(false) // Disable hardware bitmaps
-            .build()
+        val request =
+            ImageRequest
+                .Builder(context)
+                .data(url)
+                .allowHardware(false) // Disable hardware bitmaps
+                .build()
 
-        val result = (loader.execute(request) as? SuccessResult)?.drawable
-            ?: throw Exception("Failed to load image from $url")
+        val result =
+            (loader.execute(request) as? SuccessResult)?.drawable
+                ?: throw Exception("Failed to load image from $url")
 
         val bitmap = (result as android.graphics.drawable.BitmapDrawable).bitmap
         wallpaperManager.setBitmap(bitmap, null, true, flag)

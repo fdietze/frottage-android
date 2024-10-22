@@ -10,13 +10,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(onSettingsSaved: () -> Unit) {
     val context = LocalContext.current
-    var lockScreenUrl by remember { 
-        mutableStateOf(SettingsManager.getLockScreenUrl(context) 
-            ?: WallpaperSetter.DEFAULT_LOCK_SCREEN_WALLPAPER_URL) 
+    var lockScreenUrl by remember {
+        mutableStateOf(SettingsManager.getLockScreenUrl(context))
     }
-    var homeScreenUrl by remember { 
-        mutableStateOf(SettingsManager.getHomeScreenUrl(context) 
-            ?: WallpaperSetter.DEFAULT_HOME_SCREEN_WALLPAPER_URL) 
+    var homeScreenUrl by remember {
+        mutableStateOf(SettingsManager.getHomeScreenUrl(context))
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -27,7 +25,7 @@ fun SettingsScreen(onSettingsSaved: () -> Unit) {
             value = lockScreenUrl,
             onValueChange = { lockScreenUrl = it },
             label = { Text("Lock Screen URL") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -35,23 +33,23 @@ fun SettingsScreen(onSettingsSaved: () -> Unit) {
             value = homeScreenUrl,
             onValueChange = { homeScreenUrl = it },
             label = { Text("Home Screen URL") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             OutlinedButton(
                 onClick = {
-                    lockScreenUrl = WallpaperSetter.DEFAULT_LOCK_SCREEN_WALLPAPER_URL
-                    homeScreenUrl = WallpaperSetter.DEFAULT_HOME_SCREEN_WALLPAPER_URL
+                    lockScreenUrl = Constants.DEFAULT_LOCK_SCREEN_WALLPAPER_URL
+                    homeScreenUrl = Constants.DEFAULT_HOME_SCREEN_WALLPAPER_URL
                     SettingsManager.setLockScreenUrl(context, lockScreenUrl)
                     SettingsManager.setHomeScreenUrl(context, homeScreenUrl)
                     onSettingsSaved()
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text("Reset to Defaults")
             }
@@ -62,7 +60,7 @@ fun SettingsScreen(onSettingsSaved: () -> Unit) {
                     SettingsManager.setHomeScreenUrl(context, homeScreenUrl.trim())
                     onSettingsSaved()
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text("Save Settings")
             }

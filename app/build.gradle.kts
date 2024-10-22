@@ -20,7 +20,9 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+        kotlinCompilerExtensionVersion =
+            libs.versions.compose.compiler
+                .get()
     }
 
     compileOptions {
@@ -42,17 +44,25 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.android)
-    
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.activity.compose)
-    
+
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.coil.compose)
+
+    testImplementation(libs.kotlin.test.junit)
 }
 
 base {
     archivesName.set("frottage")
+}
+
+tasks.withType<Test> {
+    testLogging {
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
 }
