@@ -13,9 +13,9 @@ import java.util.Locale
 fun NextUpdateTime(key: Any? = null) {
     val context = LocalContext.current
     val currentTime = remember(key) { ZonedDateTime.now(ZoneId.of("UTC")) }
-    val isUpdateScheduled = remember(currentTime) { SettingsManager.getScheduleIsEnabled(context) }
+    val scheduledIsEnabled = remember(currentTime) { SettingsManager.getScheduleIsEnabled(context) }
 
-    if (isUpdateScheduled) {
+    if (scheduledIsEnabled) {
         val nextUpdateTime = remember(currentTime) { getNextUpdateTime(currentTime) }
 
         val localNextUpdateTime = nextUpdateTime.withZoneSameInstant(ZoneId.systemDefault())

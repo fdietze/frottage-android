@@ -3,7 +3,6 @@ package com.frottage
 import android.app.WallpaperManager
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
@@ -14,27 +13,35 @@ object WallpaperSetter {
     private const val TAG = "WallpaperSetter"
 
     suspend fun setWallpaper(context: Context) {
-        try {
-            Log.d(TAG, "Starting wallpaper update process")
-            withContext(Dispatchers.IO) {
-                val loader = ImageLoader(context)
-                val wallpaperManager = WallpaperManager.getInstance(context)
+        Log.d(TAG, "Starting wallpaper update process")
+        withContext(Dispatchers.IO) {
+            val loader = ImageLoader(context)
+            val wallpaperManager = WallpaperManager.getInstance(context)
 
-                val lockScreenUrl = SettingsManager.getLockScreenUrl(context)
-                val homeScreenUrl = SettingsManager.getHomeScreenUrl(context)
+            val lockScreenUrl = SettingsManager.getLockScreenUrl(context)
+            val homeScreenUrl = SettingsManager.getHomeScreenUrl(context)
 
-                // Set lock screen wallpaper
-                setWallpaperForScreen(context, loader, wallpaperManager, lockScreenUrl, WallpaperManager.FLAG_LOCK)
+            // Set lock screen wallpaper
+            setWallpaperForScreen(
+                context,
+                loader,
+                wallpaperManager,
+                lockScreenUrl,
+                WallpaperManager.FLAG_LOCK,
+                currentImageCacheKey(lockScreenUrl),
+            )
 
-                // Set home screen wallpaper
-                setWallpaperForScreen(context, loader, wallpaperManager, homeScreenUrl, WallpaperManager.FLAG_SYSTEM)
-            }
-            Log.i(TAG, "Wallpapers set successfully")
-            Toast.makeText(context, "Wallpapers set successfully", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error setting wallpapers: ${e.message}", e)
-            Toast.makeText(context, "Error setting wallpapers: ${e.message}", Toast.LENGTH_SHORT).show()
+            // Set home screen wallpaper
+            setWallpaperForScreen(
+                context,
+                loader,
+                wallpaperManager,
+                homeScreenUrl,
+                WallpaperManager.FLAG_SYSTEM,
+                currentImageCacheKey(homeScreenUrl),
+            )
         }
+        Log.i(TAG, "Wallpapers set successfully")
     }
 
     private suspend fun setWallpaperForScreen(
@@ -43,14 +50,18 @@ object WallpaperSetter {
         wallpaperManager: WallpaperManager,
         url: String,
         flag: Int,
+        imageCacheKey: String,
     ) {
         val request =
             ImageRequest
                 .Builder(context)
                 .data(url)
+                .diskCacheKey(imageCacheKey)
+                .memoryCacheKey(imageCacheKey)
                 .allowHardware(false) // Disable hardware bitmaps
                 .build()
 
+        Log.i(TAG, "Downloading wallpaper from $url, cachekey: $imageCacheKey")
         val result =
             (loader.execute(request) as? SuccessResult)?.drawable
                 ?: throw Exception("Failed to load image from $url")

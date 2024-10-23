@@ -29,6 +29,7 @@ fun WallpaperScheduleSwitch(): Boolean {
                 SettingsManager.setScheduleIsEnabled(context, isScheduleEnabled)
                 if (enabled) {
                     coroutineScope.launch {
+                        WallpaperSetter.setWallpaper(context)
                         scheduleNextUpdate(context)
                     }
                 } else {

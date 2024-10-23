@@ -12,13 +12,9 @@ class WallpaperWorker(
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result =
         withContext(Dispatchers.IO) {
-            try {
-                WallpaperSetter.setWallpaper(applicationContext)
-                scheduleNextUpdate(applicationContext)
-                Result.success()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return@withContext Result.retry()
-            }
+            WallpaperSetter.setWallpaper(applicationContext)
+            scheduleNextUpdate(applicationContext)
+            // worker will never report success, because it is immediately rescheduled
+            Result.success()
         }
 }

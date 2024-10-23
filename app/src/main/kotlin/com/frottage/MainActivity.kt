@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -102,7 +103,8 @@ class MainActivity :
                 .getWorkInfosByTagFlow("wallpaper_update")
                 .collect { workInfoList ->
                     workInfoList.forEach { workInfo ->
-                        if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        Log.i("UpdateObserver", "workInfo state: ${workInfo.state} nextScheduleTime: ${workInfo.nextScheduleTimeMillis}")
+                        if (workInfo.state == WorkInfo.State.ENQUEUED) {
                             updateTrigger.update { it + 1 }
                         }
                     }

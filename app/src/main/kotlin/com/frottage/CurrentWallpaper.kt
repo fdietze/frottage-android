@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 
 @Composable
 fun CurrentWallpaper(
@@ -15,8 +16,18 @@ fun CurrentWallpaper(
     contentScale: ContentScale = ContentScale.Fit,
 ) {
     val context = LocalContext.current
+    val url = SettingsManager.getLockScreenUrl(context)
+    val imageCacheKey = currentImageCacheKey(url)
     AsyncImage(
-        model = SettingsManager.getLockScreenUrl(context),
+        model =
+
+            ImageRequest
+                .Builder(context)
+                .data(url)
+                .diskCacheKey(imageCacheKey)
+                .memoryCacheKey(imageCacheKey)
+                .allowHardware(false) // Disable hardware bitmaps
+                .build(),
         contentDescription = "Current Wallpaper",
         modifier =
             modifier
