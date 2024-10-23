@@ -17,7 +17,7 @@ fun SettingsScreen(onSettingsSaved: () -> Unit) {
         mutableStateOf(SettingsManager.getHomeScreenUrl(context))
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.safeDrawingPadding().padding(16.dp)) {
         Text("Custom Wallpaper URLs", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
