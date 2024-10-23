@@ -8,3 +8,4 @@
 .externalNativeBuild
 /app/build/generated/
 /app/build/
+kls_database.db
