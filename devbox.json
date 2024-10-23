@@ -4,7 +4,7 @@
     "path:./flakes/android-sdk#gradle", // Use Gradle wrapper with aapt2 workaround
     "earthly@latest",
     "git@latest",
-    "jdk@17", // Android gradle needs jdk11
+    "jdk@17",
     "just@latest",
     "ktlint@latest",
   ],

@@ -38,7 +38,7 @@
               # Useful packages for building and testing.
               build-tools-34-0-0
               cmdline-tools-latest
-              emulator
+              # emulator
               platform-tools
               # gradle attempted to install all those platform sdks...
               # platforms-android-28
