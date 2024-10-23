@@ -1,5 +1,6 @@
 package com.frottage
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.*
@@ -29,7 +30,12 @@ fun WallpaperScheduleSwitch(): Boolean {
                 SettingsManager.setScheduleIsEnabled(context, isScheduleEnabled)
                 if (enabled) {
                     coroutineScope.launch {
-                        WallpaperSetter.setWallpaper(context)
+                        try {
+                            WallpaperSetter.setWallpaper(context)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                         scheduleNextUpdate(context)
                     }
                 } else {
