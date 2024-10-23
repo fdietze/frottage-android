@@ -5,7 +5,7 @@ _default:
   @just --list --unsorted
 
 test:
-  gradle test
+  gradle testDebug
 
 fix:
   ktlint --format
