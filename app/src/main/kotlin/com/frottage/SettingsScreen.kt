@@ -45,9 +45,6 @@ fun SettingsScreen(onSettingsSaved: () -> Unit) {
                 onClick = {
                     lockScreenUrl = Constants.DEFAULT_LOCK_SCREEN_WALLPAPER_URL
                     homeScreenUrl = Constants.DEFAULT_HOME_SCREEN_WALLPAPER_URL
-                    SettingsManager.setLockScreenUrl(context, lockScreenUrl)
-                    SettingsManager.setHomeScreenUrl(context, homeScreenUrl)
-                    onSettingsSaved()
                 },
                 modifier = Modifier.weight(1f),
             ) {
@@ -62,7 +59,7 @@ fun SettingsScreen(onSettingsSaved: () -> Unit) {
                 },
                 modifier = Modifier.weight(1f),
             ) {
-                Text("Save Settings")
+                Text("Save")
             }
         }
     }

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -17,11 +18,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.work.Configuration
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -50,11 +53,26 @@ class MainActivity :
 
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    val context = LocalContext.current
+                    val coroutineScope = rememberCoroutineScope() // Use a coroutine scope tied to the Composable lifecycle
+
                     Box(modifier = Modifier.fillMaxSize()) {
                         if (showSettings) {
                             SettingsScreen(
                                 onSettingsSaved = {
                                     showSettings = false
+                                    if (SettingsManager.getScheduleIsEnabled(context)) {
+                                        coroutineScope.launch {
+                                            try {
+                                                WallpaperSetter.setWallpaper(context)
+                                                updateTrigger.update { it + 1 }
+                                                scheduleNextUpdate(context)
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
                                 },
                             )
                             BackHandler {
