@@ -34,6 +34,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.frottage.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -59,7 +60,7 @@ class MainActivity :
             val triggerUpdate by updateTrigger.collectAsState()
             val prompt by promptFlow.collectAsState()
 
-            MaterialTheme {
+            AppTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     NavHost(navController = navController, startDestination = "wallpaper") {
                         composable("wallpaper") {
