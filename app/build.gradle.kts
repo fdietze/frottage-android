@@ -20,9 +20,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion =
-            libs.versions.compose.compiler
-                .get()
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
     compileOptions {
@@ -42,21 +40,12 @@ android {
 }
 
 dependencies {
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.coil.compose)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(platform(libs.androidx.compose.bom))
-    testImplementation(libs.kotlin.test.junit)
-
-    implementation("androidx.activity:activity-ktx:1.9.3")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.navigation:navigation-compose:2.8.3")
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(platform("androidx.compose:compose-bom:2024.10.00"))
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.0.21")
 }
 
 base {
