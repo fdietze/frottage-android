@@ -7,6 +7,9 @@ _default:
 test:
   gradle testDebug
 
+test-watch:
+  rg --files build.gradle.kts app | entr -crn gradle testDebug
+
 fix:
   ktlint --format
 
