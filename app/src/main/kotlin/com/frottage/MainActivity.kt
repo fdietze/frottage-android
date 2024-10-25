@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -22,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -69,30 +71,37 @@ class MainActivity :
                                 verticalArrangement = Arrangement.Top,
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .padding(16.dp)
-                                            .fillMaxWidth(0.7f)
-                                            .aspectRatio(9f / 16f)
-                                            .heightIn(max = 200.dp),
-                                ) {
-                                    key(triggerUpdate) {
-                                        CurrentWallpaper(
-                                            modifier = Modifier.fillMaxSize(),
-                                            onClick = { navController.navigate("fullscreen") },
-                                            contentScale = ContentScale.Fit,
-                                        )
-                                    }
+                                key(triggerUpdate) {
+                                    val context = LocalContext.current
+                                    val url = SettingsManager.getLockScreenUrl(context)
+                                    val imageCacheKey = currentImageCacheKey(url)
+                                    AsyncImage(
+                                        model =
+
+                                            ImageRequest
+                                                .Builder(context)
+                                                .data(url)
+                                                .diskCacheKey(imageCacheKey)
+                                                .memoryCacheKey(imageCacheKey)
+                                                .allowHardware(false) // Disable hardware bitmaps
+                                                .build(),
+                                        contentDescription = "Current Wallpaper",
+                                        modifier =
+                                            Modifier
+                                                .clip(shape = RoundedCornerShape(16.dp))
+                                                .heightIn(max = 500.dp)
+                                                .clickable(onClick = { navController.navigate("fullscreen") }),
+                                        contentScale = ContentScale.Fit,
+                                    )
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 prompt?.let {
                                     Text(
-                                        text = "Prompt: $it",
+                                        text = it,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        modifier = Modifier.padding(horizontal = 24.dp),
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
                                 }
@@ -245,7 +254,9 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
                         .allowHardware(false)
                         .build(),
                 contentDescription = "Current Wallpaper",
-                modifier = Modifier.fillMaxSize(),
+                modifier =
+                    Modifier
+                        .fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
         }
