@@ -10,6 +10,9 @@ test:
 test-watch:
   rg --files build.gradle.kts app | entr -crn gradle testDebug
 
+dev:
+  rg --files build.gradle.kts app | entr -crn just install
+
 fix:
   ktlint --format
 
@@ -18,7 +21,7 @@ lint:
 
 ci: test lint
 
-apk: test
+apk:
   gradle assembleDebug
 
 devices:
