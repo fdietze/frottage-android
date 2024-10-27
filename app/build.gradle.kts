@@ -43,7 +43,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-compose:2.8.3")
     implementation("androidx.work:work-runtime-ktx:2.9.1")
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("io.coil-kt.coil3:coil-compose:3.0.0-rc01")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-rc01")
     implementation(platform("androidx.compose:compose-bom:2024.10.00"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.0.21")
 }

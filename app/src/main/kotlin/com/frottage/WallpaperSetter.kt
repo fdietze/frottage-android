@@ -3,9 +3,10 @@ package com.frottage
 import android.app.WallpaperManager
 import android.content.Context
 import android.util.Log
-import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.ImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -58,15 +59,13 @@ object WallpaperSetter {
                 .data(url)
                 .diskCacheKey(imageCacheKey)
                 .memoryCacheKey(imageCacheKey)
-                .allowHardware(false) // Disable hardware bitmaps
                 .build()
 
         Log.i(TAG, "Downloading wallpaper from $url, cachekey: $imageCacheKey")
-        val result =
-            (loader.execute(request) as? SuccessResult)?.drawable
+        val image =
+            (loader.execute(request) as? SuccessResult)?.image
                 ?: throw Exception("Failed to load image from $url")
 
-        val bitmap = (result as android.graphics.drawable.BitmapDrawable).bitmap
-        wallpaperManager.setBitmap(bitmap, null, true, flag)
+        wallpaperManager.setBitmap(image.toBitmap(), null, true, flag)
     }
 }

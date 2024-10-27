@@ -34,8 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.work.Configuration
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.frottage.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -83,7 +83,6 @@ class MainActivity :
                                                 .data(url)
                                                 .diskCacheKey(imageCacheKey)
                                                 .memoryCacheKey(imageCacheKey)
-                                                .allowHardware(false) // Disable hardware bitmaps
                                                 .build(),
                                         contentDescription = "Current Wallpaper",
                                         modifier =
@@ -251,7 +250,6 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
                         .data(url)
                         .diskCacheKey(imageCacheKey)
                         .memoryCacheKey(imageCacheKey)
-                        .allowHardware(false)
                         .build(),
                 contentDescription = "Current Wallpaper",
                 modifier =
