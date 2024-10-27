@@ -16,10 +16,9 @@ dev:
 fix:
   ktlint --format
 
-lint:
-  ktlint
-
-ci: test lint
+# run ci checks locally
+ci:
+  (git ls-files && git ls-files --others --exclude-standard) | entr -cnr earthly +ci-test
 
 apk:
   gradle assembleDebug
