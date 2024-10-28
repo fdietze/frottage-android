@@ -6,6 +6,7 @@ import android.util.Log
 import coil3.ImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import coil3.request.allowHardware
 import coil3.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -59,6 +60,7 @@ object WallpaperSetter {
                 .data(url)
                 .diskCacheKey(imageCacheKey)
                 .memoryCacheKey(imageCacheKey)
+                .allowHardware(false)
                 .build()
 
         Log.i(TAG, "Downloading wallpaper from $url, cachekey: $imageCacheKey")
