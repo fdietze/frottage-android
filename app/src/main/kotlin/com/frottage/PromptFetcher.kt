@@ -9,5 +9,5 @@ suspend fun fetchPrompt(): String =
     withContext(Dispatchers.IO) {
         val jsonString = URL(Constants.PROMPT_URL).readText()
         val jsonObject = JSONObject(jsonString)
-        jsonObject.getJSONObject("template").getString("prompt")
+        jsonObject.getString("prompt")
     }
