@@ -9,3 +9,5 @@
 /app/build/generated/
 /app/build/
 kls_database.db
+keystore.jks
+/.envrc.local

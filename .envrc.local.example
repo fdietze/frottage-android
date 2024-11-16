@@ -1,0 +1,5 @@
+# https://c3pb.de/blog/keepassxc-secrets-service.html
+export SIGNING_STORE_PASSWORD="$(secret-tool lookup FROTTAGE_ANDROID_KEYSTORE_PASSWORD password)"
+export SIGNING_KEY_PASSWORD="$(secret-tool lookup FROTTAGE_ANDROID_KEYSTORE_PASSWORD password)"
+
+# vim: set ft=sh :
