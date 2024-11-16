@@ -66,85 +66,88 @@ class MainActivity :
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     NavHost(navController = navController, startDestination = "wallpaper") {
                         composable("wallpaper") {
-                            Column(
-                                modifier = Modifier.safeDrawingPadding().fillMaxSize(),
-                                verticalArrangement = Arrangement.Top,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                key(triggerUpdate) {
-                                    val context = LocalContext.current
-                                    val url = SettingsManager.getLockScreenUrl(context)
-                                    val imageCacheKey = currentImageCacheKey(url)
-                                    AsyncImage(
-                                        model =
-
-                                            ImageRequest
-                                                .Builder(context)
-                                                .data(url)
-                                                .diskCacheKey(imageCacheKey)
-                                                .memoryCacheKey(imageCacheKey)
-                                                .build(),
-                                        contentDescription = "Current Wallpaper",
-                                        modifier =
-                                            Modifier
-                                                .clip(shape = RoundedCornerShape(16.dp))
-                                                .heightIn(max = 500.dp)
-                                                .clickable(onClick = { navController.navigate("fullscreen") }),
-                                        contentScale = ContentScale.Fit,
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                prompt?.let {
-                                    Text(
-                                        text = it,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(horizontal = 24.dp),
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                }
-
+                            Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                                 Column(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Top,
+                                    horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
-                                    val context = LocalContext.current
-                                    val coroutineScope = rememberCoroutineScope()
-                                    var isScheduleEnabled by remember { mutableStateOf(SettingsManager.getScheduleIsEnabled(context)) }
-
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        Text("Enable schedule")
-                                        Switch(
-                                            checked = isScheduleEnabled,
-                                            onCheckedChange = { enabled ->
-                                                isScheduleEnabled = enabled
-                                                SettingsManager.setScheduleIsEnabled(context, isScheduleEnabled)
-                                                if (enabled) {
-                                                    coroutineScope.launch {
-                                                        try {
-                                                            WallpaperSetter.setWallpaper(context)
-                                                        } catch (e: Exception) {
-                                                            e.printStackTrace()
-                                                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                                                        }
-                                                        scheduleNextUpdate(context)
-                                                    }
-                                                } else {
-                                                    cancelUpdateSchedule(context)
-                                                }
-                                            },
-                                        )
+                                    key(triggerUpdate) {
+                                        val context = LocalContext.current
+                                        val url = SettingsManager.getLockScreenUrl(context)
+                                        val imageCacheKey = currentImageCacheKey(url)
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth().weight(1f)
+                                        ) {
+                                            AsyncImage(
+                                                model =
+                                                ImageRequest
+                                                    .Builder(context)
+                                                    .data(url)
+                                                    .diskCacheKey(imageCacheKey)
+                                                    .memoryCacheKey(imageCacheKey)
+                                                    .build(),
+                                                contentDescription = "Current Wallpaper",
+                                                modifier =
+                                                Modifier
+                                                    .align(Alignment.Center)
+                                                    .clip(shape = RoundedCornerShape(16.dp))
+                                                    .clickable(onClick = { navController.navigate("fullscreen") }),
+                                                contentScale = ContentScale.Fit,
+                                            )
+                                        }
                                     }
-                                    if (isScheduleEnabled) {
-                                        NextUpdateTime(key = triggerUpdate)
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    prompt?.let {
+                                        Text(
+                                            text = it,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            modifier = Modifier.padding(horizontal = 24.dp),
+                                        )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                    }
+
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                                    ) {
+                                        val context = LocalContext.current
+                                        val coroutineScope = rememberCoroutineScope()
+                                        var isScheduleEnabled by remember { mutableStateOf(SettingsManager.getScheduleIsEnabled(context)) }
+
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            Text("Enable schedule")
+                                            Switch(
+                                                checked = isScheduleEnabled,
+                                                onCheckedChange = { enabled ->
+                                                    isScheduleEnabled = enabled
+                                                    SettingsManager.setScheduleIsEnabled(context, isScheduleEnabled)
+                                                    if (enabled) {
+                                                        coroutineScope.launch {
+                                                            try {
+                                                                WallpaperSetter.setWallpaper(context)
+                                                            } catch (e: Exception) {
+                                                                e.printStackTrace()
+                                                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                            scheduleNextUpdate(context)
+                                                        }
+                                                    } else {
+                                                        cancelUpdateSchedule(context)
+                                                    }
+                                                },
+                                            )
+                                        }
+                                        if (isScheduleEnabled) {
+                                            NextUpdateTime(key = triggerUpdate)
+                                        }
                                     }
                                 }
-                            }
-                            Box(modifier = Modifier.fillMaxSize()) {
                                 FloatingActionButton(
                                     onClick = { navController.navigate("settings") },
                                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
