@@ -28,7 +28,7 @@ devices:
 
 install: apk
   adb devices
-  adb install app/build/outputs/apk/debug/frottage-debug.apk
+  adb install app/build/outputs/apk/debug/frottage-debug.apk || (adb uninstall com.frottage && adb install app/build/outputs/apk/debug/frottage-debug.apk)
   adb shell monkey -p com.frottage -c android.intent.category.LAUNCHER 1
 
 run: install
