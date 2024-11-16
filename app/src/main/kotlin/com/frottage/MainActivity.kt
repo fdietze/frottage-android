@@ -244,8 +244,14 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
         val context = LocalContext.current
         val url = SettingsManager.getLockScreenUrl(context)
         val imageCacheKey = currentImageCacheKey(url)
+        var alreadyClicked by remember { mutableStateOf(false) }
 
-        Box(modifier = Modifier.fillMaxSize().clickable { onClick() }) {
+        Box(modifier = Modifier.fillMaxSize().clickable {
+            if(!alreadyClicked) {
+                alreadyClicked = true
+                onClick()
+            }
+        }) {
             AsyncImage(
                 model =
                     ImageRequest
