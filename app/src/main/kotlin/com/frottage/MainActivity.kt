@@ -41,13 +41,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class MainActivity :
     ComponentActivity(),
     Configuration.Provider {
     private val updateTrigger = MutableStateFlow(0)
-    private val _promptFlow = MutableStateFlow<String?>(null)
-    val promptFlow: StateFlow<String?> = _promptFlow
+    private val _captionFlow = MutableStateFlow<String?>(null)
+    val captionFlow: StateFlow<String?> = _captionFlow
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -55,52 +59,72 @@ class MainActivity :
 
         requestBatteryOptimizationExemption()
         observeWallpaperUpdates()
-        fetchAndSetPrompt()
+        fetchAndSetCaption()
 
         setContent {
             val navController = rememberNavController()
             val triggerUpdate by updateTrigger.collectAsState()
-            val prompt by promptFlow.collectAsState()
+            val caption by captionFlow.collectAsState()
 
             AppTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     NavHost(navController = navController, startDestination = "wallpaper") {
                         composable("wallpaper") {
-                            Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .safeDrawingPadding()
+                            ) {
                                 Column(
                                     modifier = Modifier.fillMaxSize(),
                                     verticalArrangement = Arrangement.Top,
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
                                     key(triggerUpdate) {
-                                        val context = LocalContext.current
-                                        val url = SettingsManager.getLockScreenUrl(context)
-                                        val imageCacheKey = currentImageCacheKey(url)
                                         Box(
-                                            modifier = Modifier.fillMaxWidth().weight(1f)
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
                                         ) {
-                                            AsyncImage(
-                                                model =
-                                                ImageRequest
-                                                    .Builder(context)
-                                                    .data(url)
-                                                    .diskCacheKey(imageCacheKey)
-                                                    .memoryCacheKey(imageCacheKey)
-                                                    .build(),
-                                                contentDescription = "Current Wallpaper",
-                                                modifier =
-                                                Modifier
-                                                    .align(Alignment.Center)
-                                                    .clip(shape = RoundedCornerShape(16.dp))
-                                                    .clickable(onClick = { navController.navigate("fullscreen") }),
-                                                contentScale = ContentScale.Fit,
-                                            )
+                                            val context = LocalContext.current
+                                            val wallpaperSource =
+                                                SettingsManager.currentWallpaperSource
+                                            wallpaperSource.lockScreenUrl?.let {
+                                                val lockScreenUrl = it
+                                                val now = ZonedDateTime.now(ZoneId.of("UTC"))
+                                                val imageCacheKey =
+                                                    wallpaperSource.schedule.imageCacheKey(
+                                                        lockScreenUrl,
+                                                        now
+                                                    )
+                                                AsyncImage(
+                                                    model =
+                                                    ImageRequest
+                                                        .Builder(context)
+                                                        .data(lockScreenUrl)
+                                                        .diskCacheKey(imageCacheKey)
+                                                        .memoryCacheKey(imageCacheKey)
+                                                        .build(),
+                                                    contentDescription = "Current Wallpaper",
+                                                    modifier =
+                                                    Modifier
+                                                        .align(Alignment.Center)
+                                                        .clip(shape = RoundedCornerShape(16.dp))
+                                                        .clickable(onClick = {
+                                                            navController.navigate("fullscreen")
+                                                        }),
+                                                    contentScale = ContentScale.Fit,
+                                                )
+                                            }
                                         }
                                     }
 
                                     Spacer(modifier = Modifier.height(16.dp))
 
-                                    prompt?.let {
+                                    caption?.let {
                                         Text(
                                             text = it,
                                             style = MaterialTheme.typography.bodyMedium,
@@ -115,7 +139,11 @@ class MainActivity :
                                     ) {
                                         val context = LocalContext.current
                                         val coroutineScope = rememberCoroutineScope()
-                                        var isScheduleEnabled by remember { mutableStateOf(SettingsManager.getScheduleIsEnabled(context)) }
+                                        var isScheduleEnabled by remember {
+                                            mutableStateOf(
+                                                SettingsManager.getScheduleIsEnabled(context)
+                                            )
+                                        }
 
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
@@ -126,14 +154,21 @@ class MainActivity :
                                                 checked = isScheduleEnabled,
                                                 onCheckedChange = { enabled ->
                                                     isScheduleEnabled = enabled
-                                                    SettingsManager.setScheduleIsEnabled(context, isScheduleEnabled)
+                                                    SettingsManager.setScheduleIsEnabled(
+                                                        context,
+                                                        isScheduleEnabled
+                                                    )
                                                     if (enabled) {
                                                         coroutineScope.launch {
                                                             try {
                                                                 WallpaperSetter.setWallpaper(context)
                                                             } catch (e: Exception) {
                                                                 e.printStackTrace()
-                                                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "Error: ${e.message}",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
                                                             }
                                                             scheduleNextUpdate(context)
                                                         }
@@ -150,9 +185,14 @@ class MainActivity :
                                 }
                                 FloatingActionButton(
                                     onClick = { navController.navigate("settings") },
-                                    modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(16.dp),
                                 ) {
-                                    Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Settings"
+                                    )
                                 }
                             }
                         }
@@ -218,11 +258,11 @@ class MainActivity :
         }
     }
 
-    private fun fetchAndSetPrompt() {
+    private fun fetchAndSetCaption() {
         lifecycleScope.launch {
             try {
-                val prompt = fetchPrompt()
-                _promptFlow.value = prompt
+                val caption = SettingsManager.currentWallpaperSource.getCaption?.let { it() }
+                _captionFlow.value = caption
             } catch (e: Exception) {
                 // Handle error
             }
@@ -239,31 +279,56 @@ class MainActivity :
 }
 
 @Composable
-fun FullscreenImageScreen(onClick: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        val context = LocalContext.current
-        val url = SettingsManager.getLockScreenUrl(context)
-        val imageCacheKey = currentImageCacheKey(url)
-        var alreadyClicked by remember { mutableStateOf(false) }
+fun NextUpdateTime(key: Any? = null) {
+    val context = LocalContext.current
+    val now = ZonedDateTime.now(ZoneId.of("UTC"))
+    val scheduledIsEnabled = remember(now) { SettingsManager.getScheduleIsEnabled(context) }
 
-        Box(modifier = Modifier.fillMaxSize().clickable {
-            if(!alreadyClicked) {
-                alreadyClicked = true
-                onClick()
-            }
-        }) {
+    if (scheduledIsEnabled) {
+        val nextUpdateTime = SettingsManager.currentWallpaperSource.schedule.nextUpdateTime(now)
+
+        val localNextUpdateTime = nextUpdateTime.withZoneSameInstant(ZoneId.systemDefault())
+        val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
+        val formattedNextUpdateTime = localNextUpdateTime.format(timeFormat)
+
+        Text("Next update at: $formattedNextUpdateTime")
+    }
+}
+
+@Composable
+fun FullscreenImageScreen(onClick: () -> Unit) {
+    val context = LocalContext.current
+    var alreadyClicked by remember { mutableStateOf(false) }
+    val wallpaperSource =
+        SettingsManager.currentWallpaperSource
+    wallpaperSource.lockScreenUrl?.let {
+        val lockScreenUrl = it
+        val now = ZonedDateTime.now(ZoneId.of("UTC"))
+        val imageCacheKey =
+            wallpaperSource.schedule.imageCacheKey(
+                lockScreenUrl,
+                now
+            )
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .clickable {
+                if (!alreadyClicked) {
+                    alreadyClicked = true
+                    onClick()
+                }
+            }) {
             AsyncImage(
                 model =
-                    ImageRequest
-                        .Builder(context)
-                        .data(url)
-                        .diskCacheKey(imageCacheKey)
-                        .memoryCacheKey(imageCacheKey)
-                        .build(),
+                ImageRequest
+                    .Builder(context)
+                    .data(lockScreenUrl)
+                    .diskCacheKey(imageCacheKey)
+                    .memoryCacheKey(imageCacheKey)
+                    .build(),
                 contentDescription = "Current Wallpaper",
                 modifier =
-                    Modifier
-                        .fillMaxSize(),
+                Modifier
+                    .fillMaxSize(),
                 contentScale = ContentScale.Crop,
             )
         }

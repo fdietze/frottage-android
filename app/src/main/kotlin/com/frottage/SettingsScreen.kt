@@ -9,32 +9,30 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsScreen(onSettingsSaved: () -> Unit) {
-    val context = LocalContext.current
-    var lockScreenUrl by remember {
-        mutableStateOf(SettingsManager.getLockScreenUrl(context))
-    }
-    var homeScreenUrl by remember {
-        mutableStateOf(SettingsManager.getHomeScreenUrl(context))
-    }
+    LocalContext.current
 
-    Column(modifier = Modifier.safeDrawingPadding().padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .safeDrawingPadding()
+            .padding(16.dp)
+    ) {
         Text("Custom Wallpaper URLs", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = lockScreenUrl,
-            onValueChange = { lockScreenUrl = it },
-            label = { Text("Lock Screen URL") },
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = homeScreenUrl,
-            onValueChange = { homeScreenUrl = it },
-            label = { Text("Home Screen URL") },
-            modifier = Modifier.fillMaxWidth(),
-        )
+//        OutlinedTextField(
+//            value = lockScreenUrl,
+//            onValueChange = { lockScreenUrl = it },
+//            label = { Text("Lock Screen URL") },
+//            modifier = Modifier.fillMaxWidth(),
+//        )
+//        Spacer(modifier = Modifier.height(8.dp))
+//
+//        OutlinedTextField(
+//            value = homeScreenUrl,
+//            onValueChange = { homeScreenUrl = it },
+//            label = { Text("Home Screen URL") },
+//            modifier = Modifier.fillMaxWidth(),
+//        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
@@ -42,21 +40,14 @@ fun SettingsScreen(onSettingsSaved: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             OutlinedButton(
-                onClick = {
-                    lockScreenUrl = Constants.DEFAULT_LOCK_SCREEN_WALLPAPER_URL
-                    homeScreenUrl = Constants.DEFAULT_HOME_SCREEN_WALLPAPER_URL
-                },
+                onClick = { },
                 modifier = Modifier.weight(1f),
             ) {
                 Text("Reset to Defaults")
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
-                onClick = {
-                    SettingsManager.setLockScreenUrl(context, lockScreenUrl.trim())
-                    SettingsManager.setHomeScreenUrl(context, homeScreenUrl.trim())
-                    onSettingsSaved()
-                },
+                onClick = { onSettingsSaved() },
                 modifier = Modifier.weight(1f),
             ) {
                 Text("Save")
