@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
@@ -177,17 +175,17 @@ class MainActivity :
                                         }
                                     }
                                 }
-                                FloatingActionButton(
-                                    onClick = { navController.navigate("settings") },
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .padding(16.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Settings"
-                                    )
-                                }
+//                                FloatingActionButton(
+//                                    onClick = { navController.navigate("settings") },
+//                                    modifier = Modifier
+//                                        .align(Alignment.BottomEnd)
+//                                        .padding(16.dp),
+//                                ) {
+//                                    Icon(
+//                                        imageVector = Icons.Default.Settings,
+//                                        contentDescription = "Settings"
+//                                    )
+//                                }
                             }
                         }
                         composable("settings") {
