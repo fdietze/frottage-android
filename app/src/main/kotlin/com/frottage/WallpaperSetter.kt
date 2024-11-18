@@ -3,10 +3,9 @@ package com.frottage
 import android.app.WallpaperManager
 import android.content.Context
 import android.util.Log
-import coil3.ImageLoader
-import coil3.request.ImageRequest
-import coil3.request.SuccessResult
-import coil3.toBitmap
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.ZoneId
@@ -55,9 +54,10 @@ object WallpaperSetter {
 
         Log.i(TAG, "Downloading wallpaper from $url, cachekey: ${imageRequest.diskCacheKey}")
         val image =
-            (imageLoader.execute(imageRequest) as? SuccessResult)?.image
+            (imageLoader.execute(imageRequest) as? SuccessResult)?.drawable
                 ?: throw Exception("Failed to load image from $url")
 
-        wallpaperManager.setBitmap(image.toBitmap(), null, true, flag)
+        val bitmap = (image as android.graphics.drawable.BitmapDrawable).bitmap
+        wallpaperManager.setBitmap(bitmap, null, true, flag)
     }
 }

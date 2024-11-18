@@ -34,7 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.work.Configuration
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import coil3.compose.AsyncImage
+import coil.compose.AsyncImage
 import com.frottage.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

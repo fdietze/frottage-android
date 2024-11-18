@@ -67,8 +67,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-compose:2.8.4")
     implementation("androidx.work:work-runtime-ktx:2.9.1")
-    implementation("io.coil-kt.coil3:coil-compose:3.0.3")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.3")
+    implementation("io.coil-kt:coil-compose:2.7.0") // coil3.0.3 was caching too much
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.3")
     implementation(platform("androidx.compose:compose-bom:2024.11.00"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.0.21")
