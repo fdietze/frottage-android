@@ -35,7 +35,6 @@ import androidx.work.Configuration
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
 import com.frottage.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -95,20 +94,15 @@ class MainActivity :
                                             wallpaperSource.lockScreenUrl?.let {
                                                 val lockScreenUrl = it
                                                 val now = ZonedDateTime.now(ZoneId.of("UTC"))
-                                                val imageCacheKey =
-                                                    wallpaperSource.schedule.imageCacheKey(
+                                                val imageRequest =
+                                                    wallpaperSource.schedule.imageRequest(
                                                         lockScreenUrl,
-                                                        now
+                                                        now,
+                                                        context
                                                     )
                                                 AsyncImage(
-                                                    model =
-                                                    ImageRequest
-                                                        .Builder(context)
-                                                        .data(lockScreenUrl)
-                                                        .diskCacheKey(imageCacheKey)
-                                                        .memoryCacheKey(imageCacheKey)
-                                                        .build(),
-                                                    contentDescription = "Current Wallpaper",
+                                                    model = imageRequest,
+                                                    contentDescription = "Current Lock Screen Wallpaper",
                                                     modifier =
                                                     Modifier
                                                         .align(Alignment.Center)
@@ -304,10 +298,11 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
     wallpaperSource.lockScreenUrl?.let {
         val lockScreenUrl = it
         val now = ZonedDateTime.now(ZoneId.of("UTC"))
-        val imageCacheKey =
-            wallpaperSource.schedule.imageCacheKey(
+        val imageRequest =
+            wallpaperSource.schedule.imageRequest(
                 lockScreenUrl,
-                now
+                now,
+                context
             )
         Box(modifier = Modifier
             .fillMaxSize()
@@ -318,14 +313,8 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
                 }
             }) {
             AsyncImage(
-                model =
-                ImageRequest
-                    .Builder(context)
-                    .data(lockScreenUrl)
-                    .diskCacheKey(imageCacheKey)
-                    .memoryCacheKey(imageCacheKey)
-                    .build(),
-                contentDescription = "Current Wallpaper",
+                model = imageRequest,
+                contentDescription = "Current Lock Screen Wallpaper",
                 modifier =
                 Modifier
                     .fillMaxSize(),

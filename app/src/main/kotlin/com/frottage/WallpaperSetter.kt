@@ -6,7 +6,6 @@ import android.util.Log
 import coil3.ImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
-import coil3.request.allowHardware
 import coil3.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,7 +27,7 @@ object WallpaperSetter {
                     context,
                     lockScreenUrl,
                     WallpaperManager.FLAG_LOCK, // Lock Screen
-                    wallpaperSource.schedule.imageCacheKey(lockScreenUrl, now),
+                    wallpaperSource.schedule.imageRequest(lockScreenUrl, now, context),
                 )
             }
 
@@ -38,7 +37,7 @@ object WallpaperSetter {
                     context,
                     homeScreenUrl,
                     WallpaperManager.FLAG_SYSTEM, // Home screen
-                    wallpaperSource.schedule.imageCacheKey(homeScreenUrl, now),
+                    wallpaperSource.schedule.imageRequest(homeScreenUrl, now, context),
                 )
             }
         }
@@ -49,19 +48,12 @@ object WallpaperSetter {
         context: Context,
         url: String,
         flag: Int,
-        imageCacheKey: String,
+        imageRequest: ImageRequest,
     ) {
         val wallpaperManager = WallpaperManager.getInstance(context)
         val imageLoader = ImageLoader(context)
-        val imageRequest = ImageRequest
-            .Builder(context)
-            .data(url)
-            .diskCacheKey(imageCacheKey)
-            .memoryCacheKey(imageCacheKey)
-            .allowHardware(false)
-            .build()
 
-        Log.i(TAG, "Downloading wallpaper from $url, cachekey: $imageCacheKey")
+        Log.i(TAG, "Downloading wallpaper from $url, cachekey: ${imageRequest.diskCacheKey}")
         val image =
             (imageLoader.execute(imageRequest) as? SuccessResult)?.image
                 ?: throw Exception("Failed to load image from $url")
