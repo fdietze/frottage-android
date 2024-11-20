@@ -16,12 +16,15 @@ CACHE_INIT:
 
 devbox:
   FROM jetpackio/devbox:latest
+  ARG cache_nix_store = false
   # code generated using `devbox generate dockerfile`:
   # Installing your devbox project
   WORKDIR /code
   USER root:root
 
-  DO +CACHE_INIT --target="/nix/store"
+  IF [ "$cache_nix_store" = true ]
+    DO +CACHE_INIT --target="/nix/store"
+  END
 
   RUN mkdir -p /code && chown ${DEVBOX_USER}:${DEVBOX_USER} /code
   USER ${DEVBOX_USER}:${DEVBOX_USER}
@@ -35,10 +38,24 @@ devbox:
 
 build:
   FROM +devbox
-  CACHE --chmod 0777 /home/devbox/.gradle
-  COPY --dir app assets build.gradle.kts gradle.properties settings.gradle.kts ./
-  RUN devbox run -- gradle assembleRelease --no-daemon
+  CACHE --chmod 0777 --id gradle /home/devbox/.gradle
+  COPY --dir gradle gradlew ./
+  RUN devbox run -- ./gradlew --no-daemon --version
+  COPY --dir app build.gradle.kts gradle.properties settings.gradle.kts ./
+  RUN devbox run -- ./gradlew assembleDebug --no-daemon
   SAVE ARTIFACT app/build/outputs/apk/debug/frottage.apk app.apk
+
+playstore:
+  FROM +build
+  CACHE --chmod 0777 --id gradle /home/devbox/.gradle
+  COPY --dir fastlane ./
+  RUN mkdir -p keys
+  RUN --secret KEYSTORE_BASE64 printf "%s" "$KEYSTORE_BASE64" | base64 --decode > keys/keystore.jks
+  RUN --secret PLAY_SERVICE_ACCOUNT_JSON printf "%s" "$PLAY_SERVICE_ACCOUNT_JSON" > keys/play-service-account.json
+  RUN cat keys/play-service-account.json
+  ENV LC_ALL=en_US.UTF-8 # https://docs.fastlane.tools/getting-started/ios/setup/#set-up-environment-variables
+  ENV LANG=en_US.UTF-8
+  RUN --secret SIGNING_STORE_PASSWORD --secret SIGNING_KEY_PASSWORD devbox run -- fastlane playstore
 
 lint:
   FROM +devbox
@@ -49,3 +66,7 @@ lint:
 ci-test:
   # BUILD +lint
   BUILD +build
+
+ci-deploy:
+  BUILD +ci-test
+  BUILD +playstore

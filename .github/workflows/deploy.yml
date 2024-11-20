@@ -1,0 +1,51 @@
+name: Deploy
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: read
+
+env:
+  EARTHLY_TOKEN: ${{ secrets.EARTHLY_TOKEN }}
+  EARTHLY_ORG: ${{ secrets.EARTHLY_ORG }}
+  EARTHLY_SATELLITE: ${{ secrets.EARTHLY_SATELLITE }}
+  EARTHLY_CI: true
+  GITHUB_ACTIONS: true # Better earthly outputs in github actions
+  FORCE_COLOR: 1
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Expose EARTHLY_VERSION from devbox.lock
+      run: |
+        # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+        EARTHLY_VERSION="$(jq -r ".packages[\"earthly@latest\"].version" devbox.lock)"
+        echo "EARTHLY_VERSION=$EARTHLY_VERSION" >> "$GITHUB_ENV"
+
+    - name: Install earthly
+      uses: earthly/actions-setup@v1
+      with:
+        version: ${{ env.EARTHLY_VERSION }}
+
+    - name: Deploy
+      run:
+        earthly --allow-privileged --secret KEYSTORE_BASE64 --secret PLAY_SERVICE_ACCOUNT_JSON --secret SIGNING_STORE_PASSWORD --secret SIGNING_KEY_PASSWORD +ci-deploy
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+        SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}

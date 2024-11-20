@@ -9,5 +9,7 @@
 /app/build/generated/
 /app/build/
 kls_database.db
-keystore.jks
+/keys
 /.envrc.local
+/fastlane/report.xml
+/gradle/wrapper/gradle-wrapper.jar

@@ -16,11 +16,18 @@ android {
         versionName = "1.0"
         // Required when setting minSdkVersion to 20 or lower
         multiDexEnabled = true
+
+        if (project.hasProperty("VERSION_CODE")) {
+            versionCode = (project.property("VERSION_CODE") as String).toInt()
+        }
+        if (project.hasProperty("VERSION_NAME")) {
+            versionName = project.property("VERSION_NAME") as String
+        }
     }
 
     signingConfigs {
         create("release") {
-            storeFile = file("../keystore.jks")
+            storeFile = file("../keys/keystore.jks")
             storePassword = System.getenv("SIGNING_STORE_PASSWORD")
             keyAlias = "my-alias"
             keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
