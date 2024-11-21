@@ -12,4 +12,3 @@ kls_database.db
 /keys
 /.envrc.local
 /fastlane/report.xml
-/gradle/wrapper/gradle-wrapper.jar
