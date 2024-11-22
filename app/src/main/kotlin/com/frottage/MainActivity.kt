@@ -15,6 +15,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -27,7 +29,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -36,8 +42,9 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.frottage.theme.AppTheme
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -54,7 +61,6 @@ class MainActivity :
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        requestBatteryOptimizationExemption()
         observeWallpaperUpdates()
 
         setContent {
@@ -68,114 +74,30 @@ class MainActivity :
                 ) {
                     NavHost(navController = navController, startDestination = "wallpaper") {
                         composable("wallpaper") {
-                            Box(
+                            Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .safeDrawingPadding()
+                                    .safeDrawingPadding(),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.Top,
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    key(triggerUpdate) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .weight(1f)
-                                        ) {
-                                            val context = LocalContext.current
-                                            val wallpaperSource =
-                                                SettingsManager.currentWallpaperSource
-                                            wallpaperSource.lockScreen?.let {
-                                                val lockScreenUrl = it.url
-                                                val now = ZonedDateTime.now(ZoneId.of("UTC"))
-                                                val imageRequest =
-                                                    wallpaperSource.schedule.imageRequest(
-                                                        lockScreenUrl,
-                                                        now,
-                                                        context
-                                                    )
-                                                AsyncImage(
-                                                    model = imageRequest,
-                                                    contentDescription = "Current Lock Screen Wallpaper",
-                                                    modifier =
-                                                    Modifier
-                                                        .align(Alignment.Center)
-                                                        .clip(shape = RoundedCornerShape(16.dp))
-                                                        .clickable(onClick = {
-                                                            navController.navigate("fullscreen")
-                                                        }),
-                                                    contentScale = ContentScale.Fit,
-                                                )
-                                            }
-                                        }
-                                    }
+                                Preview(navController, triggerUpdate, Modifier.weight(1f))
 
-                                    Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                                    Column(
-                                        modifier = Modifier.padding(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                                    ) {
-                                        val context = LocalContext.current
-                                        val coroutineScope = rememberCoroutineScope()
-                                        var isScheduleEnabled by remember {
-                                            mutableStateOf(
-                                                SettingsManager.getScheduleIsEnabled(context)
-                                            )
-                                        }
+                                NextUpdateTime(key = triggerUpdate)
 
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        ) {
-                                            Text("Enable schedule")
-                                            Switch(
-                                                checked = isScheduleEnabled,
-                                                onCheckedChange = { enabled ->
-                                                    isScheduleEnabled = enabled
-                                                    SettingsManager.setScheduleIsEnabled(
-                                                        context,
-                                                        isScheduleEnabled
-                                                    )
-                                                    if (enabled) {
-                                                        coroutineScope.launch {
-                                                            try {
-                                                                WallpaperSetter.setWallpaper(context)
-                                                            } catch (e: Exception) {
-                                                                e.printStackTrace()
-                                                                Toast.makeText(
-                                                                    context,
-                                                                    "Error: ${e.message}",
-                                                                    Toast.LENGTH_SHORT
-                                                                ).show()
-                                                            }
-                                                            scheduleNextUpdate(context)
-                                                        }
-                                                    } else {
-                                                        cancelUpdateSchedule(context)
-                                                    }
-                                                },
-                                            )
-                                        }
-                                        if (isScheduleEnabled) {
-                                            NextUpdateTime(key = triggerUpdate)
-                                        }
-                                    }
-                                }
-                                FloatingActionButton(
-                                    onClick = { navController.navigate("settings") },
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .padding(16.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Settings"
-                                    )
-                                }
+                                val context = LocalContext.current
+                                //WorkManager.getInstance(context).getWorkInfos()
+                                WorkInfoListScreen()
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                SetWallpaperButton()
+
+                                Schedule(triggerUpdate)
                             }
+
+                            // SettingsButton(navController)
                         }
                         composable("settings") {
                             SettingsScreen(onSettingsSaved = {
@@ -190,6 +112,110 @@ class MainActivity :
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun SetWallpaperButton() {
+        val coroutineScope = rememberCoroutineScope()
+        val context = LocalContext.current
+        Button(onClick = { coroutineScope.launch { WallpaperSetter.setWallpaper(context) } }) {
+            Text("Set Wallpaper!")
+        }
+    }
+
+    @Composable
+    private fun SettingsButton(navController: NavHostController) {
+        FloatingActionButton(
+            onClick = { navController.navigate("settings") },
+            modifier = Modifier
+                .padding(16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings"
+            )
+        }
+    }
+
+    @Composable
+    private fun Preview(navController: NavHostController, triggerUpdate: Int, modifier: Modifier) {
+        key(triggerUpdate) {
+            val context = LocalContext.current
+            val wallpaperSource =
+                SettingsManager.currentWallpaperSource
+            wallpaperSource.lockScreen?.let {
+                val lockScreenUrl = it.url
+                val now = ZonedDateTime.now(ZoneId.of("UTC"))
+                val imageRequest =
+                    wallpaperSource.schedule.imageRequest(
+                        lockScreenUrl,
+                        now,
+                        context
+                    )
+                AsyncImage(
+                    model = imageRequest,
+                    contentDescription = "Current Lock Screen Wallpaper",
+                    modifier =
+                    modifier
+                        .clip(shape = RoundedCornerShape(16.dp))
+                        .clickable(onClick = {
+                            navController.navigate("fullscreen")
+                        }),
+                    contentScale = ContentScale.Fit,
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun Schedule(triggerUpdate: Int) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            val context = LocalContext.current
+            val coroutineScope = rememberCoroutineScope()
+            var isScheduleEnabled by remember {
+                mutableStateOf(
+                    SettingsManager.getScheduleIsEnabled(context)
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("Enable schedule")
+                Switch(
+                    checked = isScheduleEnabled,
+                    onCheckedChange = { enabled ->
+                        isScheduleEnabled = enabled
+                        SettingsManager.setScheduleIsEnabled(
+                            context,
+                            isScheduleEnabled
+                        )
+                        if (enabled) {
+                            requestBatteryOptimizationExemption()
+                            coroutineScope.launch {
+                                try {
+                                    WallpaperSetter.setWallpaper(context)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Toast.makeText(
+                                        context,
+                                        "Error: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                scheduleNextUpdate(context)
+                            }
+                        } else {
+                            cancelUpdateSchedule(context)
+                        }
+                    },
+                )
             }
         }
     }
@@ -250,19 +276,13 @@ class MainActivity :
 
 @Composable
 fun NextUpdateTime(key: Any? = null) {
-    val context = LocalContext.current
     val now = ZonedDateTime.now(ZoneId.of("UTC"))
-    val scheduledIsEnabled = remember(now) { SettingsManager.getScheduleIsEnabled(context) }
+    val nextUpdateTime = SettingsManager.currentWallpaperSource.schedule.nextUpdateTime(now)
+    val localNextUpdateTime = nextUpdateTime.withZoneSameInstant(ZoneId.systemDefault())
+    val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
+    val formattedNextUpdateTime = localNextUpdateTime.format(timeFormat)
 
-    if (scheduledIsEnabled) {
-        val nextUpdateTime = SettingsManager.currentWallpaperSource.schedule.nextUpdateTime(now)
-
-        val localNextUpdateTime = nextUpdateTime.withZoneSameInstant(ZoneId.systemDefault())
-        val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
-        val formattedNextUpdateTime = localNextUpdateTime.format(timeFormat)
-
-        Text("Next update at: $formattedNextUpdateTime")
-    }
+    Text("Next update at: $formattedNextUpdateTime")
 }
 
 @Composable
@@ -297,5 +317,36 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
                 contentScale = ContentScale.Crop,
             )
         }
+    }
+}
+
+@Composable
+fun WorkInfoListScreen() {
+    val context = LocalContext.current
+    val workManager = WorkManager.getInstance(context)
+    val workInfosFlow: Flow<List<WorkInfo>> =
+        workManager.getWorkInfosForUniqueWorkLiveData("wallpaper_update").asFlow()
+    val workInfos by workInfosFlow.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    WorkInfoList(workInfos)
+}
+
+// Composable to display a list of WorkInfo
+@Composable
+fun WorkInfoList(workInfos: List<WorkInfo>) {
+    LazyColumn {
+        items(workInfos) { workInfo ->
+            WorkInfoItem(workInfo)
+        }
+    }
+}
+
+// Composable to display a single WorkInfo item
+@Composable
+fun WorkInfoItem(workInfo: WorkInfo) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(text = "ID: ${workInfo.id}")
+        Text(text = "State: ${workInfo.state}")
+        Text(text = "Tags: ${workInfo.tags.joinToString()}")
     }
 }
