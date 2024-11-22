@@ -14,7 +14,6 @@ data class WallpaperSource(
 data class ScreenSetting(
     val url: String,
     val blurred: Boolean,
-    val getCaption: (suspend () -> String)? = null,
 )
 
 
@@ -23,26 +22,10 @@ val frottageWallpaperSource = WallpaperSource(
     lockScreen = ScreenSetting(
         url = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg",
         blurred = false,
-        getCaption = {
-            withContext(Dispatchers.IO) {
-                val jsonString =
-                    URL("https://fdietze.github.io/frottage/wallpapers/mobile.json").readText()
-                val jsonObject = JSONObject(jsonString)
-                jsonObject.getString("prompt")
-            }
-        }
     ),
     homeScreen = ScreenSetting(
         url = "https://fdietze.github.io/frottage/wallpapers/wallpaper-mobile-latest.jpg",
         blurred = true,
-        getCaption = {
-            withContext(Dispatchers.IO) {
-                val jsonString =
-                    URL("https://fdietze.github.io/frottage/wallpapers/mobile.json").readText()
-                val jsonObject = JSONObject(jsonString)
-                jsonObject.getString("prompt")
-            }
-        }
     ),
 )
 

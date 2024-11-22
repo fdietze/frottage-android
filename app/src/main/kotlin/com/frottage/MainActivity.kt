@@ -49,8 +49,6 @@ class MainActivity :
     ComponentActivity(),
     Configuration.Provider {
     private val updateTrigger = MutableStateFlow(0)
-    private val _captionFlow = MutableStateFlow<String?>(null)
-    val captionFlow: StateFlow<String?> = _captionFlow
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -58,12 +56,10 @@ class MainActivity :
 
         requestBatteryOptimizationExemption()
         observeWallpaperUpdates()
-        fetchAndSetCaption()
 
         setContent {
             val navController = rememberNavController()
             val triggerUpdate by updateTrigger.collectAsState()
-            val caption by captionFlow.collectAsState()
 
             AppTheme {
                 Surface(
@@ -117,15 +113,6 @@ class MainActivity :
                                     }
 
                                     Spacer(modifier = Modifier.height(16.dp))
-
-                                    caption?.let {
-                                        Text(
-                                            text = it,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            modifier = Modifier.padding(horizontal = 24.dp),
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                    }
 
                                     Column(
                                         modifier = Modifier.padding(16.dp),
@@ -249,18 +236,6 @@ class MainActivity :
                         }
                     }
                 }
-        }
-    }
-
-    private fun fetchAndSetCaption() {
-        lifecycleScope.launch {
-            try {
-                val caption =
-                    SettingsManager.currentWallpaperSource.lockScreen?.getCaption?.let { it() }
-                _captionFlow.value = caption
-            } catch (e: Exception) {
-                // Handle error
-            }
         }
     }
 
