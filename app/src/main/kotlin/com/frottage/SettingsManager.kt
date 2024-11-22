@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.core.content.edit
 
 object SettingsManager {
+    val currentWallpaperSource = frottageWallpaperSource
+
     private const val PREFS_NAME = "FrottageSettings"
     private const val KEY_SCHEDULE_ENABLED = "schedule_enabled"
 
@@ -21,5 +23,4 @@ object SettingsManager {
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean(KEY_SCHEDULE_ENABLED, false)
 
-    val currentWallpaperSource = frottageWallpaperSource
 }

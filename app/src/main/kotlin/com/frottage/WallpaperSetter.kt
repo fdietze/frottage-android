@@ -20,21 +20,23 @@ object WallpaperSetter {
             val now = ZonedDateTime.now(ZoneId.of("UTC"))
             val wallpaperSource = SettingsManager.currentWallpaperSource
 
-            wallpaperSource.lockScreenUrl?.let {
-                val lockScreenUrl = it
+            wallpaperSource.lockScreen?.let {
+                val lockScreenUrl = it.url
                 setWallpaperForScreen(
                     context,
                     lockScreenUrl,
+                    it.blurred,
                     WallpaperManager.FLAG_LOCK, // Lock Screen
                     wallpaperSource.schedule.imageRequest(lockScreenUrl, now, context),
                 )
             }
 
-            wallpaperSource.homeScreenUrl?.let {
-                val homeScreenUrl = it
+            wallpaperSource.homeScreen?.let {
+                val homeScreenUrl = it.url
                 setWallpaperForScreen(
                     context,
                     homeScreenUrl,
+                    it.blurred,
                     WallpaperManager.FLAG_SYSTEM, // Home screen
                     wallpaperSource.schedule.imageRequest(homeScreenUrl, now, context),
                 )
@@ -46,18 +48,23 @@ object WallpaperSetter {
     private suspend fun setWallpaperForScreen(
         context: Context,
         url: String,
+        blurred: Boolean,
         flag: Int,
         imageRequest: ImageRequest,
     ) {
         val wallpaperManager = WallpaperManager.getInstance(context)
         val imageLoader = ImageLoader(context)
+        val imageRequest = imageRequest.newBuilder().allowHardware(false).build()
 
         Log.i(TAG, "Downloading wallpaper from $url, cachekey: ${imageRequest.diskCacheKey}")
         val image =
             (imageLoader.execute(imageRequest) as? SuccessResult)?.drawable
                 ?: throw Exception("Failed to load image from $url")
 
-        val bitmap = (image as android.graphics.drawable.BitmapDrawable).bitmap
+        var bitmap = (image as android.graphics.drawable.BitmapDrawable).bitmap
+        if (blurred) {
+            bitmap = blurBitmap(context, bitmap, 25.0f)
+        }
         wallpaperManager.setBitmap(bitmap, null, true, flag)
     }
 }

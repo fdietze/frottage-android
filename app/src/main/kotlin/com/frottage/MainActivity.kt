@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
@@ -89,8 +91,8 @@ class MainActivity :
                                             val context = LocalContext.current
                                             val wallpaperSource =
                                                 SettingsManager.currentWallpaperSource
-                                            wallpaperSource.lockScreenUrl?.let {
-                                                val lockScreenUrl = it
+                                            wallpaperSource.lockScreen?.let {
+                                                val lockScreenUrl = it.url
                                                 val now = ZonedDateTime.now(ZoneId.of("UTC"))
                                                 val imageRequest =
                                                     wallpaperSource.schedule.imageRequest(
@@ -175,17 +177,17 @@ class MainActivity :
                                         }
                                     }
                                 }
-//                                FloatingActionButton(
-//                                    onClick = { navController.navigate("settings") },
-//                                    modifier = Modifier
-//                                        .align(Alignment.BottomEnd)
-//                                        .padding(16.dp),
-//                                ) {
-//                                    Icon(
-//                                        imageVector = Icons.Default.Settings,
-//                                        contentDescription = "Settings"
-//                                    )
-//                                }
+                                FloatingActionButton(
+                                    onClick = { navController.navigate("settings") },
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(16.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Settings,
+                                        contentDescription = "Settings"
+                                    )
+                                }
                             }
                         }
                         composable("settings") {
@@ -253,7 +255,8 @@ class MainActivity :
     private fun fetchAndSetCaption() {
         lifecycleScope.launch {
             try {
-                val caption = SettingsManager.currentWallpaperSource.getCaption?.let { it() }
+                val caption =
+                    SettingsManager.currentWallpaperSource.lockScreen?.getCaption?.let { it() }
                 _captionFlow.value = caption
             } catch (e: Exception) {
                 // Handle error
@@ -293,8 +296,8 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
     var alreadyClicked by remember { mutableStateOf(false) }
     val wallpaperSource =
         SettingsManager.currentWallpaperSource
-    wallpaperSource.lockScreenUrl?.let {
-        val lockScreenUrl = it
+    wallpaperSource.lockScreen?.let {
+        val lockScreenUrl = it.url
         val now = ZonedDateTime.now(ZoneId.of("UTC"))
         val imageRequest =
             wallpaperSource.schedule.imageRequest(
