@@ -41,10 +41,12 @@ fun scheduleNextUpdate(context: Context) {
     )
 
     Log.i("scheduleNextUpdate", "Next Update scheduled at: $nextUpdateTime")
+    logToFile(context, "Next Update scheduled at: $nextUpdateTime")
 }
 
 fun cancelUpdateSchedule(context: Context) {
     WorkManager.getInstance(context).cancelAllWorkByTag("wallpaper_update")
+    logToFile(context, "Schedule cancelled")
 }
 
 class WallpaperWorker(

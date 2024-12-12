@@ -16,6 +16,7 @@ object WallpaperSetter {
 
     suspend fun setWallpaper(context: Context) {
         Log.d(TAG, "Starting wallpaper update process")
+        logToFile(context, "Starting wallpaper update process")
         withContext(Dispatchers.IO) {
             val now = ZonedDateTime.now(ZoneId.of("UTC"))
             val wallpaperSource = SettingsManager.currentWallpaperSource
@@ -43,6 +44,7 @@ object WallpaperSetter {
             }
         }
         Log.i(TAG, "Wallpapers set successfully")
+        logToFile(context, "Wallpapers set successfully")
     }
 
     private suspend fun setWallpaperForScreen(
@@ -57,9 +59,17 @@ object WallpaperSetter {
         val imageRequest = imageRequest.newBuilder().allowHardware(false).build()
 
         Log.i(TAG, "Downloading wallpaper from $url, cachekey: ${imageRequest.diskCacheKey}")
+        logToFile(
+            context,
+            "Downloading wallpaper from $url, cachekey: ${imageRequest.diskCacheKey}"
+        )
+
         val image =
             (imageLoader.execute(imageRequest) as? SuccessResult)?.drawable
-                ?: throw Exception("Failed to load image from $url")
+                ?: {
+                    logToFile(context, "Failed to load image from $url")
+                    throw Exception("Failed to load image from $url")
+                }
 
         var bitmap = (image as android.graphics.drawable.BitmapDrawable).bitmap
         if (blurred) {

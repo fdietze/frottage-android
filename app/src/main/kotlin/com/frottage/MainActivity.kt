@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -71,15 +70,16 @@ class MainActivity :
             AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     NavHost(navController = navController, startDestination = "wallpaper") {
                         composable("wallpaper") {
                             Column(
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .fillMaxSize()
                                     .safeDrawingPadding(),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Preview(navController, triggerUpdate, Modifier.weight(1f))
 
@@ -87,15 +87,21 @@ class MainActivity :
 
                                 NextUpdateTime(key = triggerUpdate)
 
-                                val context = LocalContext.current
-                                //WorkManager.getInstance(context).getWorkInfos()
-                                WorkInfoListScreen()
+                                LocalContext.current
+                                // WorkManager.getInstance(context).getWorkInfos()
+//                                WorkInfoListScreen()
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 SetWallpaperButton()
 
                                 Schedule(triggerUpdate)
+
+                                Button(onClick = {
+                                    navController.navigate("logscreen")
+                                }) {
+                                    Text("Show Logs")
+                                }
                             }
 
                             // SettingsButton(navController)
@@ -108,6 +114,11 @@ class MainActivity :
                         }
                         composable("fullscreen") {
                             FullscreenImageScreen(onClick = {
+                                navController.popBackStack()
+                            })
+                        }
+                        composable("logscreen") {
+                            LogFileView(onClick = {
                                 navController.popBackStack()
                             })
                         }
@@ -146,18 +157,23 @@ class MainActivity :
     private fun SettingsButton(navController: NavHostController) {
         FloatingActionButton(
             onClick = { navController.navigate("settings") },
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(16.dp),
         ) {
             Icon(
                 imageVector = Icons.Default.Settings,
-                contentDescription = "Settings"
+                contentDescription = "Settings",
             )
         }
     }
 
     @Composable
-    private fun Preview(navController: NavHostController, triggerUpdate: Int, modifier: Modifier) {
+    private fun Preview(
+        navController: NavHostController,
+        triggerUpdate: Int,
+        modifier: Modifier,
+    ) {
         key(triggerUpdate) {
             val context = LocalContext.current
             val wallpaperSource =
@@ -169,7 +185,7 @@ class MainActivity :
                     wallpaperSource.schedule.imageRequest(
                         lockScreenUrl,
                         now,
-                        context
+                        context,
                     )
                 AsyncImage(
                     model = imageRequest,
@@ -316,16 +332,19 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
             wallpaperSource.schedule.imageRequest(
                 lockScreenUrl,
                 now,
-                context
+                context,
             )
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickable {
-                if (!alreadyClicked) {
-                    alreadyClicked = true
-                    onClick()
-                }
-            }) {
+        Box(
+            modifier =
+            Modifier
+                .fillMaxSize()
+                .clickable {
+                    if (!alreadyClicked) {
+                        alreadyClicked = true
+                        onClick()
+                    }
+                },
+        ) {
             AsyncImage(
                 model = imageRequest,
                 contentDescription = "Current Lock Screen Wallpaper",
