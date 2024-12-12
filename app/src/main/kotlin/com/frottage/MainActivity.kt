@@ -42,11 +42,12 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.frottage.theme.AppTheme
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -118,10 +119,26 @@ class MainActivity :
 
     @Composable
     private fun SetWallpaperButton() {
-        val coroutineScope = rememberCoroutineScope()
         val context = LocalContext.current
-        Button(onClick = { coroutineScope.launch { WallpaperSetter.setWallpaper(context) } }) {
-            Text("Set Wallpaper!")
+        val scope = rememberCoroutineScope()
+
+        Button(onClick = {
+            scope.launch {
+                try {
+                    WallpaperSetter.setWallpaper(context)
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        // Safely switch to the Main context for UI operations like showing a Toast
+                        Toast.makeText(
+                            context,
+                            "Error: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }) {
+            Text("Set Wallpaper")
         }
     }
 
@@ -176,10 +193,10 @@ class MainActivity :
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             val context = LocalContext.current
-            val coroutineScope = rememberCoroutineScope()
+            val scope = rememberCoroutineScope()
             var isScheduleEnabled by remember {
                 mutableStateOf(
-                    SettingsManager.getScheduleIsEnabled(context)
+                    SettingsManager.getScheduleIsEnabled(context),
                 )
             }
 
@@ -194,22 +211,23 @@ class MainActivity :
                         isScheduleEnabled = enabled
                         SettingsManager.setScheduleIsEnabled(
                             context,
-                            isScheduleEnabled
+                            isScheduleEnabled,
                         )
                         if (enabled) {
                             requestBatteryOptimizationExemption()
-                            coroutineScope.launch {
+                            scope.launch {
                                 try {
                                     WallpaperSetter.setWallpaper(context)
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    Toast.makeText(
-                                        context,
-                                        "Error: ${e.message}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    withContext(Dispatchers.Main) {
+                                        // Safely switch to the Main context for UI operations like showing a Toast
+                                        Toast.makeText(
+                                            context,
+                                            "Error: ${e.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
-                                scheduleNextUpdate(context)
                             }
                         } else {
                             cancelUpdateSchedule(context)
