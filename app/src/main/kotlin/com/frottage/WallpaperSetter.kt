@@ -22,7 +22,7 @@ object WallpaperSetter {
             val wallpaperSource = SettingsManager.currentWallpaperSource
 
             wallpaperSource.lockScreen?.let {
-                val lockScreenUrl = it.url
+                val lockScreenUrl = it.url(context)
                 setWallpaperForScreen(
                     context,
                     lockScreenUrl,
@@ -33,7 +33,7 @@ object WallpaperSetter {
             }
 
             wallpaperSource.homeScreen?.let {
-                val homeScreenUrl = it.url
+                val homeScreenUrl = it.url(context)
                 setWallpaperForScreen(
                     context,
                     homeScreenUrl,
