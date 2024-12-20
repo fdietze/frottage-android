@@ -97,11 +97,11 @@ class MainActivity :
 
                                 Schedule(triggerUpdate)
 
-                                Button(onClick = {
-                                    navController.navigate("logscreen")
-                                }) {
-                                    Text("Show Logs")
-                                }
+//                                Button(onClick = {
+//                                    navController.navigate("logscreen")
+//                                }) {
+//                                    Text("Show Logs")
+//                                }
                             }
 
                             // SettingsButton(navController)
@@ -316,7 +316,7 @@ fun NextUpdateTime(key: Any? = null) {
     val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
     val formattedNextUpdateTime = localNextUpdateTime.format(timeFormat)
 
-    Text("Next update at: $formattedNextUpdateTime")
+    Text("Next image: $formattedNextUpdateTime")
 }
 
 @Composable
