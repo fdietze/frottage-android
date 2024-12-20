@@ -179,7 +179,7 @@ class MainActivity :
             val wallpaperSource =
                 SettingsManager.currentWallpaperSource
             wallpaperSource.lockScreen?.let {
-                val lockScreenUrl = it.url
+                val lockScreenUrl = it.url(context)
                 val now = ZonedDateTime.now(ZoneId.of("UTC"))
                 val imageRequest =
                     wallpaperSource.schedule.imageRequest(
@@ -326,7 +326,7 @@ fun FullscreenImageScreen(onClick: () -> Unit) {
     val wallpaperSource =
         SettingsManager.currentWallpaperSource
     wallpaperSource.lockScreen?.let {
-        val lockScreenUrl = it.url
+        val lockScreenUrl = it.url(context)
         val now = ZonedDateTime.now(ZoneId.of("UTC"))
         val imageRequest =
             wallpaperSource.schedule.imageRequest(
