@@ -85,7 +85,7 @@ class MainActivity :
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                NextUpdateTime(key = triggerUpdate)
+                                NextUpdateTime(key = triggerUpdate, navController = navController)
 
                                 LocalContext.current
                                 // WorkManager.getInstance(context).getWorkInfos()
@@ -96,12 +96,6 @@ class MainActivity :
                                 SetWallpaperButton()
 
                                 Schedule(triggerUpdate)
-
-//                                Button(onClick = {
-//                                    navController.navigate("logscreen")
-//                                }) {
-//                                    Text("Show Logs")
-//                                }
                             }
 
                             // SettingsButton(navController)
@@ -309,14 +303,25 @@ class MainActivity :
 }
 
 @Composable
-fun NextUpdateTime(key: Any? = null) {
+fun NextUpdateTime(key: Any? = null, navController: NavHostController) {
     val now = ZonedDateTime.now(ZoneId.of("UTC"))
     val nextUpdateTime = SettingsManager.currentWallpaperSource.schedule.nextUpdateTime(now)
     val localNextUpdateTime = nextUpdateTime.withZoneSameInstant(ZoneId.systemDefault())
     val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
     val formattedNextUpdateTime = localNextUpdateTime.format(timeFormat)
 
-    Text("Next image: $formattedNextUpdateTime")
+    var tapCount by remember { mutableStateOf(0) }
+
+    Text(
+        text = "Next image: $formattedNextUpdateTime",
+        modifier = Modifier.clickable {
+            tapCount++
+            if (tapCount >= 7) {
+                navController.navigate("logscreen")
+                tapCount = 0
+            }
+        }
+    )
 }
 
 @Composable
