@@ -52,7 +52,6 @@ playstore:
   RUN mkdir -p keys
   RUN --secret KEYSTORE_BASE64 printf "%s" "$KEYSTORE_BASE64" | base64 --decode > keys/keystore.jks
   RUN --secret PLAY_SERVICE_ACCOUNT_JSON printf "%s" "$PLAY_SERVICE_ACCOUNT_JSON" > keys/play-service-account.json
-  RUN cat keys/play-service-account.json
   ENV LC_ALL=en_US.UTF-8 # https://docs.fastlane.tools/getting-started/ios/setup/#set-up-environment-variables
   ENV LANG=en_US.UTF-8
   RUN --secret SIGNING_STORE_PASSWORD --secret SIGNING_KEY_PASSWORD devbox run -- fastlane playstore
