@@ -17,34 +17,41 @@ object WallpaperSetter {
     suspend fun setWallpaper(context: Context) {
         Log.d(TAG, "Starting wallpaper update process")
         logToFile(context, "Starting wallpaper update process")
-        withContext(Dispatchers.IO) {
-            val now = ZonedDateTime.now(ZoneId.of("UTC"))
-            val wallpaperSource = SettingsManager.currentWallpaperSource
+        try {
+            withContext(Dispatchers.IO) {
+                val now = ZonedDateTime.now(ZoneId.of("UTC"))
+                val wallpaperSource = SettingsManager.currentWallpaperSource
 
-            wallpaperSource.lockScreen?.let {
-                val lockScreenUrl = it.url(context)
-                setWallpaperForScreen(
-                    context,
-                    lockScreenUrl,
-                    it.blurred,
-                    WallpaperManager.FLAG_LOCK, // Lock Screen
-                    wallpaperSource.schedule.imageRequest(lockScreenUrl, now, context),
-                )
-            }
+                wallpaperSource.lockScreen?.let {
+                    val lockScreenUrl = it.url(context)
+                    setWallpaperForScreen(
+                        context,
+                        lockScreenUrl,
+                        it.blurred,
+                        WallpaperManager.FLAG_LOCK, // Lock Screen
+                        wallpaperSource.schedule.imageRequest(lockScreenUrl, now, context),
+                    )
+                }
 
-            wallpaperSource.homeScreen?.let {
-                val homeScreenUrl = it.url(context)
-                setWallpaperForScreen(
-                    context,
-                    homeScreenUrl,
-                    it.blurred,
-                    WallpaperManager.FLAG_SYSTEM, // Home screen
-                    wallpaperSource.schedule.imageRequest(homeScreenUrl, now, context),
-                )
+                wallpaperSource.homeScreen?.let {
+                    val homeScreenUrl = it.url(context)
+                    setWallpaperForScreen(
+                        context,
+                        homeScreenUrl,
+                        it.blurred,
+                        WallpaperManager.FLAG_SYSTEM, // Home screen
+                        wallpaperSource.schedule.imageRequest(homeScreenUrl, now, context),
+                    )
+                }
             }
+            Log.i(TAG, "Wallpapers set successfully")
+            logToFile(context, "Wallpapers set successfully")
+        } catch (e: Exception) {
+            val errorMessage = "Failed to set wallpaper: ${e.message}"
+            Log.e(TAG, errorMessage, e)
+            logToFile(context, "$errorMessage\n${e.stackTraceToString()}")
+            throw e
         }
-        Log.i(TAG, "Wallpapers set successfully")
-        logToFile(context, "Wallpapers set successfully")
     }
 
     private suspend fun setWallpaperForScreen(
@@ -66,10 +73,7 @@ object WallpaperSetter {
 
         val image =
             (imageLoader.execute(imageRequest) as? SuccessResult)?.drawable
-                ?: {
-                    logToFile(context, "Failed to load image from $url")
-                    throw Exception("Failed to load image from $url")
-                }
+                ?: throw Exception("Failed to load image from $url")
 
         var bitmap = (image as android.graphics.drawable.BitmapDrawable).bitmap
         if (blurred) {
