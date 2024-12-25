@@ -3,8 +3,6 @@ package com.frottage
 import android.content.Context
 import android.util.Log
 import androidx.work.*
-import androidx.work.Constraints
-import androidx.work.NetworkType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Duration
@@ -22,12 +20,12 @@ fun scheduleNextUpdate(context: Context) {
         OneTimeWorkRequestBuilder<WallpaperWorker>()
             .addTag("wallpaper_update")
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setConstraints(
-                Constraints
-                    .Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
+//            .setConstraints(
+//                Constraints
+//                    .Builder()
+//                    .setRequiredNetworkType(NetworkType.CONNECTED)
+//                    .build()
+//            )
             .setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 10,
