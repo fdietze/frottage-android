@@ -58,7 +58,7 @@ val frottageWallpaperSource = WallpaperSource(
 )
 
 val unsplashWallpaperSource = WallpaperSource(
-    schedule = EveryMinuteSchedule,
+    schedule = EveryXSecondsSchedule(15),
     lockScreen = ScreenSetting(
         url = { context -> "https://unsplash.it/1080/2400/?random" },
         blurred = false,

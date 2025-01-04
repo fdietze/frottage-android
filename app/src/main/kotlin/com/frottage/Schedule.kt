@@ -56,3 +56,29 @@ object EveryMinuteSchedule : Schedule {
     override fun prevUpdateTime(currentTime: ZonedDateTime): ZonedDateTime =
         currentTime.truncatedTo(ChronoUnit.MINUTES)
 }
+
+data class EveryXSecondsSchedule(val seconds: Int) : Schedule {
+    init {
+        // Fail fast if invalid seconds value is provided
+        require(seconds > 0) { "seconds must be positive, got $seconds" }
+    }
+
+    override fun nextUpdateTime(currentTime: ZonedDateTime): ZonedDateTime {
+        // Round up to the next interval
+        val currentSecond = currentTime.second
+        val nextIntervalSeconds = ((currentSecond / seconds) + 1) * seconds
+        return currentTime
+            .withSecond(0)
+            .plusSeconds(nextIntervalSeconds.toLong())
+            .truncatedTo(ChronoUnit.SECONDS)
+    }
+
+    override fun prevUpdateTime(currentTime: ZonedDateTime): ZonedDateTime {
+        // Round down to the previous interval
+        val currentSecond = currentTime.second
+        val prevIntervalSeconds = (currentSecond / seconds) * seconds
+        return currentTime
+            .withSecond(prevIntervalSeconds)
+            .truncatedTo(ChronoUnit.SECONDS)
+    }
+}
