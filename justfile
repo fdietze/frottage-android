@@ -20,18 +20,21 @@ fix:
 ci:
   (git ls-files && git ls-files --others --exclude-standard) | entr -cnr earthly +ci-test
 
-apk:
-  ./gradlew assembleDebug
+# Build APK for specified variant (debug/release)
+apk variant="debug":
+  ./gradlew assemble{{variant}}
 
 devices:
   adb devices
 
-install: apk
+# Install APK for specified variant (debug/release)
+install variant="debug": (apk variant)
   adb devices
-  adb install app/build/outputs/apk/debug/frottage-debug.apk || (adb uninstall com.frottage && adb install app/build/outputs/apk/debug/frottage-debug.apk)
+  adb install app/build/outputs/apk/{{variant}}/frottage-{{variant}}.apk || (adb uninstall com.frottage && adb install app/build/outputs/apk/{{variant}}/frottage-{{variant}}.apk)
   adb shell monkey -p com.frottage -c android.intent.category.LAUNCHER 1
 
-run: install
+# Run app for specified variant (debug/release)
+run variant="debug": (install variant)
   scripts/logcat com.frottage
 
 deploy:
