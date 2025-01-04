@@ -53,7 +53,7 @@ val frottageWallpaperSource = WallpaperSource(
     ),
     homeScreen = ScreenSetting(
         url = { context -> frottageUrl(context) },
-        blurred = true,
+        blurred = false,
     ),
 )
 
