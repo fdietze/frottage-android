@@ -87,9 +87,7 @@ class MainActivity :
 
                                 NextUpdateTime(key = triggerUpdate, navController = navController)
 
-                                LocalContext.current
-                                // WorkManager.getInstance(context).getWorkInfos()
-//                                WorkInfoListScreen()
+                                // WorkInfoListScreen()
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -238,6 +236,7 @@ class MainActivity :
                                         ).show()
                                     }
                                 }
+                                scheduleNextUpdate(context)
                             }
                         } else {
                             cancelUpdateSchedule(context)
