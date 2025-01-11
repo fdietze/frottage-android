@@ -87,8 +87,6 @@ class MainActivity :
 
                                 NextUpdateTime(key = triggerUpdate, navController = navController)
 
-                                // WorkInfoListScreen()
-
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 SetWallpaperButton()
