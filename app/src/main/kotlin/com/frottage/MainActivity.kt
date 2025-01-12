@@ -124,24 +124,39 @@ class MainActivity :
     private fun SetWallpaperButton() {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
+        var isLoading by remember { mutableStateOf(false) }
 
-        Button(onClick = {
-            scope.launch {
-                try {
-                    WallpaperSetter.setWallpaper(context)
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        // Safely switch to the Main context for UI operations like showing a Toast
-                        Toast.makeText(
-                            context,
-                            "Error: ${e.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+        Button(
+            onClick = {
+                scope.launch {
+                    isLoading = true
+                    try {
+                        WallpaperSetter.setWallpaper(context)
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                "Error: ${e.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } finally {
+                        isLoading = false
                     }
                 }
+            },
+            enabled = !isLoading
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Setting Wallpaper...")
+            } else {
+                Text("Set Wallpaper")
             }
-        }) {
-            Text("Set Wallpaper")
         }
     }
 
