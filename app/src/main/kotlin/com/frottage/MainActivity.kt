@@ -76,22 +76,24 @@ class MainActivity :
                         composable("wallpaper") {
                             Column(
                                 modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .safeDrawingPadding(),
+                                    Modifier
+                                        .fillMaxSize()
+                                        .safeDrawingPadding(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Preview(navController, triggerUpdate, Modifier.weight(1f))
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                NextUpdateTime(key = triggerUpdate, navController = navController)
+                                SetWallpaperButton()
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                SetWallpaperButton()
+                                NextUpdateTime(key = triggerUpdate, navController = navController)
 
-                                Schedule(triggerUpdate)
+                                scheduleSwitch(triggerUpdate)
+
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
 
                             // SettingsButton(navController)
@@ -193,55 +195,35 @@ class MainActivity :
     }
 
     @Composable
-    private fun Schedule(triggerUpdate: Int) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            val context = LocalContext.current
-            val scope = rememberCoroutineScope()
-            var isScheduleEnabled by remember {
-                mutableStateOf(
-                    SettingsManager.getScheduleIsEnabled(context),
-                )
-            }
+    private fun scheduleSwitch(triggerUpdate: Int) {
+        val context = LocalContext.current
+        var isScheduleEnabled by remember {
+            mutableStateOf(
+                SettingsManager.getScheduleIsEnabled(context),
+            )
+        }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Text("Enable schedule")
-                Switch(
-                    checked = isScheduleEnabled,
-                    onCheckedChange = { enabled ->
-                        isScheduleEnabled = enabled
-                        SettingsManager.setScheduleIsEnabled(
-                            context,
-                            isScheduleEnabled,
-                        )
-                        if (enabled) {
-                            requestBatteryOptimizationExemption()
-                            scope.launch {
-                                try {
-                                    WallpaperSetter.setWallpaper(context)
-                                } catch (e: Exception) {
-                                    withContext(Dispatchers.Main) {
-                                        // Safely switch to the Main context for UI operations like showing a Toast
-                                        Toast.makeText(
-                                            context,
-                                            "Error: ${e.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                                scheduleNextUpdate(context)
-                            }
-                        } else {
-                            cancelUpdateSchedule(context)
-                        }
-                    },
-                )
-            }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text("Enable schedule")
+            Switch(
+                checked = isScheduleEnabled,
+                onCheckedChange = { enabled ->
+                    isScheduleEnabled = enabled
+                    SettingsManager.setScheduleIsEnabled(
+                        context,
+                        isScheduleEnabled,
+                    )
+                    if (enabled) {
+                        requestBatteryOptimizationExemption()
+                        scheduleNextUpdate(context)
+                    } else {
+                        cancelUpdateSchedule(context)
+                    }
+                },
+            )
         }
     }
 

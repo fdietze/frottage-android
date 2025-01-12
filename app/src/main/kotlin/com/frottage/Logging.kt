@@ -60,6 +60,7 @@ fun LogFileView(onClick: () -> Unit) {
         //         .fillMaxSize()
         //         .safeDrawingPadding(),
     ) {
+        Text("Schedule:")
         WorkInfoListScreen()
 
         LazyColumn(
