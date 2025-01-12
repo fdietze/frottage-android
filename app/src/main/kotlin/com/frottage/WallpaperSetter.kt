@@ -57,7 +57,7 @@ object WallpaperSetter {
     private suspend fun setWallpaperForScreen(
         context: Context,
         url: String,
-        blurred: Boolean,
+        blurred: (Context) -> Boolean,
         flag: Int,
         imageRequest: ImageRequest,
     ) {
@@ -76,7 +76,7 @@ object WallpaperSetter {
                 ?: throw Exception("Failed to load image from $url")
 
         var bitmap = (image as android.graphics.drawable.BitmapDrawable).bitmap
-        if (blurred) {
+        if (blurred(context)) {
             bitmap = blurBitmap(context, bitmap, 25.0f)
         }
         wallpaperManager.setBitmap(bitmap, null, true, flag)

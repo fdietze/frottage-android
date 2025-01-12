@@ -83,11 +83,11 @@ class MainActivity :
                             ) {
                                 Preview(navController, triggerUpdate, Modifier.weight(1f))
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                homeScreenBlurSwitch(triggerUpdate)
 
                                 SetWallpaperButton()
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(32.dp))
 
                                 NextUpdateTime(key = triggerUpdate, navController = navController)
 
@@ -224,6 +224,34 @@ class MainActivity :
                     }
                 },
             )
+        }
+    }
+
+    @Composable
+    private fun homeScreenBlurSwitch(triggerUpdate: Int) {
+        val context = LocalContext.current
+        var isBlurEnabled by remember {
+            mutableStateOf(
+                SettingsManager.getHomeScreenBlur(context),
+            )
+        }
+        val scope = rememberCoroutineScope()
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Checkbox(
+                checked = isBlurEnabled,
+                onCheckedChange = { enabled ->
+                    isBlurEnabled = enabled
+                    SettingsManager.setHomeScreenBlur(
+                        context,
+                        isBlurEnabled,
+                    )
+                },
+            )
+            Text("Blur home screen")
         }
     }
 

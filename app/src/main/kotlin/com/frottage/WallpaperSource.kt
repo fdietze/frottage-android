@@ -12,7 +12,7 @@ data class WallpaperSource(
 
 data class ScreenSetting(
     val url: (Context) -> String,
-    val blurred: Boolean,
+    val blurred: (Context) -> Boolean,
 )
 
 
@@ -49,11 +49,11 @@ val frottageWallpaperSource = WallpaperSource(
     schedule = UtcHoursSchedule(listOf(1, 7, 13, 19)),
     lockScreen = ScreenSetting(
         url = { context -> frottageUrl(context) },
-        blurred = false,
+        blurred = { _ -> false },
     ),
     homeScreen = ScreenSetting(
         url = { context -> frottageUrl(context) },
-        blurred = false,
+        blurred = { context -> SettingsManager.getHomeScreenBlur(context) },
     ),
 )
 
@@ -61,11 +61,11 @@ val unsplashWallpaperSource = WallpaperSource(
     schedule = EveryXSecondsSchedule(15),
     lockScreen = ScreenSetting(
         url = { context -> "https://unsplash.it/1080/2400/?random" },
-        blurred = false,
+        blurred = { _ -> false },
     ),
     homeScreen = ScreenSetting(
         url = { context -> "https://unsplash.it/1080/2400/?random" },
-        blurred = true,
+        blurred = { context -> SettingsManager.getHomeScreenBlur(context) },
     ),
 )
 
