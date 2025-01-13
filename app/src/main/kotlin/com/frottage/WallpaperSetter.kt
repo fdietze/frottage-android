@@ -77,7 +77,7 @@ object WallpaperSetter {
 
         var bitmap = (image as android.graphics.drawable.BitmapDrawable).bitmap
         if (blurred(context)) {
-            bitmap = blurBitmap(context, bitmap, 25.0f)
+            bitmap = blurBitmap(context, bitmap, 64.0f)
         }
         wallpaperManager.setBitmap(bitmap, null, true, flag)
     }
