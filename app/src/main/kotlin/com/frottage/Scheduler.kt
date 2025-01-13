@@ -48,14 +48,22 @@ fun cancelUpdateSchedule(context: Context) {
 }
 
 class WallpaperWorker(
-    context: Context,
-    params: WorkerParameters,
+        context: Context,
+        params: WorkerParameters,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result =
-        withContext(Dispatchers.IO) {
-            WallpaperSetter.setWallpaper(applicationContext)
-            scheduleNextUpdate(applicationContext)
-            // worker will never report success, because it is immediately rescheduled
-            Result.success()
-        }
+            withContext(Dispatchers.IO) {
+                try {
+                    WallpaperSetter.setWallpaper(applicationContext)
+                    scheduleNextUpdate(applicationContext)
+                    Result.success()
+                } catch (e: Exception) {
+                    Log.e("WallpaperWorker", "Failed to set wallpaper: ${e.message}", e)
+                    logToFile(
+                            applicationContext,
+                            "Worker failed, will retry: ${e.message}\n${e.stackTraceToString()}"
+                    )
+                    Result.retry()
+                }
+            }
 }
