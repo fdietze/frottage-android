@@ -22,26 +22,30 @@ object WallpaperSetter {
                 val now = ZonedDateTime.now(ZoneId.of("UTC"))
                 val wallpaperSource = SettingsManager.currentWallpaperSource
 
-                wallpaperSource.lockScreen?.let {
-                    val lockScreenUrl = it.url(context)
-                    setWallpaperForScreen(
-                        context,
-                        lockScreenUrl,
-                        it.blurred,
-                        WallpaperManager.FLAG_LOCK, // Lock Screen
-                        wallpaperSource.schedule.imageRequest(lockScreenUrl, now, context),
-                    )
+                if (SettingsManager.getLockScreenEnable(context)) {
+                    wallpaperSource.lockScreen?.let {
+                        val lockScreenUrl = it.url(context)
+                        setWallpaperForScreen(
+                            context,
+                            lockScreenUrl,
+                            it.blurred,
+                            WallpaperManager.FLAG_LOCK, // Lock Screen
+                            wallpaperSource.schedule.imageRequest(lockScreenUrl, now, context),
+                        )
+                    }
                 }
 
-                wallpaperSource.homeScreen?.let {
-                    val homeScreenUrl = it.url(context)
-                    setWallpaperForScreen(
-                        context,
-                        homeScreenUrl,
-                        it.blurred,
-                        WallpaperManager.FLAG_SYSTEM, // Home screen
-                        wallpaperSource.schedule.imageRequest(homeScreenUrl, now, context),
-                    )
+                if (SettingsManager.getHomeScreenEnable(context)) {
+                    wallpaperSource.homeScreen?.let {
+                        val homeScreenUrl = it.url(context)
+                        setWallpaperForScreen(
+                            context,
+                            homeScreenUrl,
+                            it.blurred,
+                            WallpaperManager.FLAG_SYSTEM, // Home screen
+                            wallpaperSource.schedule.imageRequest(homeScreenUrl, now, context),
+                        )
+                    }
                 }
             }
             Log.i(TAG, "Wallpapers set successfully")

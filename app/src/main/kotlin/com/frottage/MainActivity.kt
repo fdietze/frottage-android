@@ -76,14 +76,24 @@ class MainActivity :
                         composable("wallpaper") {
                             Column(
                                 modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .safeDrawingPadding(),
+                                Modifier
+                                    .fillMaxSize()
+                                    .safeDrawingPadding(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Preview(navController, triggerUpdate, Modifier.weight(1f))
 
-                                homeScreenBlurSwitch(triggerUpdate)
+                                Column {
+                                    lockScreenEnableCheckbox()
+                                    homeScreenEnableCheckbox()
+                                    Box(
+                                        modifier =
+                                        Modifier
+                                            .padding(start = 32.dp),
+                                    ) {
+                                        homeScreenBlurCheckbox()
+                                    }
+                                }
 
                                 SetWallpaperButton()
 
@@ -242,15 +252,15 @@ class MainActivity :
         }
     }
 
+
     @Composable
-    private fun homeScreenBlurSwitch(triggerUpdate: Int) {
+    private fun homeScreenBlurCheckbox() {
         val context = LocalContext.current
         var isBlurEnabled by remember {
             mutableStateOf(
                 SettingsManager.getHomeScreenBlur(context),
             )
         }
-        val scope = rememberCoroutineScope()
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -267,6 +277,60 @@ class MainActivity :
                 },
             )
             Text("Blur home screen")
+        }
+    }
+
+    @Composable
+    private fun homeScreenEnableCheckbox() {
+        val context = LocalContext.current
+        var isHomeScreenEnabled by remember {
+            mutableStateOf(
+                SettingsManager.getHomeScreenEnable(context),
+            )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Checkbox(
+                checked = isHomeScreenEnabled,
+                onCheckedChange = { isChecked ->
+                    isHomeScreenEnabled = isChecked
+                    SettingsManager.setHomeScreenEnable(
+                        context,
+                        isHomeScreenEnabled,
+                    )
+                },
+            )
+            Text("Frottage my home screen")
+        }
+    }
+
+    @Composable
+    private fun lockScreenEnableCheckbox() {
+        val context = LocalContext.current
+        var isLockScreenEnabled by remember {
+            mutableStateOf(
+                SettingsManager.getLockScreenEnable(context),
+            )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Checkbox(
+                checked = isLockScreenEnabled,
+                onCheckedChange = { isChecked ->
+                    isLockScreenEnabled = isChecked
+                    SettingsManager.setLockScreenEnable(
+                        context,
+                        isLockScreenEnabled,
+                    )
+                },
+            )
+            Text("Frottage my lock screen")
         }
     }
 
