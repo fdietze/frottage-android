@@ -21,11 +21,11 @@ fun scheduleNextUpdate(context: Context) {
             .addTag("wallpaper_update")
             .setInitialDelay(delay, TimeUnit.MILLISECONDS)
             // when constraint is enabled, it triggers only when connected to wifi...
-            // .setConstraints(
-            //         Constraints.Builder()
-            //                 .setRequiredNetworkType(NetworkType.CONNECTED)
-            //                 .build()
-            // )
+            .setConstraints(
+                    Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+            )
             .setBackoffCriteria(
                 BackoffPolicy.EXPONENTIAL,
                 10,
